@@ -2,6 +2,7 @@ package CourseClub.register;
 
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -12,10 +13,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+@Singleton
 @Path("/clubs")
 public class ClubsResource {
     ClubsService clubsService = new ClubsService();
     
+    // This seems to break methods. Probably because there are multiple @GET-annotated methods
+    /*
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String asdf() {
@@ -23,6 +27,7 @@ public class ClubsResource {
         // TODO: Return json or xml?
         return "here be clubs";
     }
+    */
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -48,7 +53,7 @@ public class ClubsResource {
     @Path("/{clubId}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Club updateClub(@PathParam("clubId") long id, Club club) {
-        club.setId(id);
+        club.setId(id); // TODO: Is this really correct?
         return clubsService.updateClub(club);
     }
     
