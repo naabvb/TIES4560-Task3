@@ -10,14 +10,14 @@ public class Course {
 	private long id;
 	private String title;
 	private String teacher;
-	private List<String> students;
+	private List<Student> students;
 
 	public Course() {
 		// stub
 	}
 
 	public void setId(long id2) {
-		// TODO Auto-generated method stub
+		this.id = id2;
 
 	}
 }
