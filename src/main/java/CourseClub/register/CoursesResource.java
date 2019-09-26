@@ -2,6 +2,7 @@ package CourseClub.register;
 
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -13,16 +14,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+@Singleton
 @Path("/courses")
 public class CoursesResource {
 
 	CoursesService coursesService = new CoursesService();
-
-	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public String asd() {
-		return "toimin";
-	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
