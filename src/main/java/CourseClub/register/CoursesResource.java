@@ -22,8 +22,14 @@ public class CoursesResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Course> getCourses(@QueryParam("title") String title, @QueryParam("teacher") String teacher) {
-		// do stuff here
+	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher) {
+		if (teacher != null) {
+			return coursesService.getFilteredByTeacher(teacher, size);
+		}
+		if (size != 0) {
+			return coursesService.getFilteredBySize(size);
+		}
+
 		return coursesService.getAllCourses();
 	}
 

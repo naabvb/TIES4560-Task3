@@ -64,4 +64,22 @@ public class CoursesService {
 
 	}
 
+	public List<Course> getFilteredByTeacher(String teacher, int size) {
+		List<Course> filtered = new ArrayList<Course>();
+		for (int i = 0; i < courses.size(); i++) {
+			if (courses.get(i).getTeacher().equals(teacher))
+				filtered.add(getCourse(i));
+		}
+		if (size != 0) {
+			ArrayList<Course> filteredBySize = new ArrayList<Course>(filtered.subList(0, size));
+			return filteredBySize;
+		}
+		return filtered;
+	}
+
+	public List<Course> getFilteredBySize(int size) {
+		ArrayList<Course> filteredBySize = new ArrayList<Course>(courses.subList(0, size));
+		return filteredBySize;
+	}
+
 }
