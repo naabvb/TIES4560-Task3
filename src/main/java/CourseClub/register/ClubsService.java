@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClubsService {
-    long nextId = 1;
+    long nextId = 0L;
     List<Club> clubs = new ArrayList<Club>();
     
     public List<Club> getAllClubs() {
@@ -22,6 +22,7 @@ public class ClubsService {
     public Club addClub(Club club) {
         club.setId(nextId);
         nextId++;
+        clubs.add(club);
         return club;
     }
 
@@ -38,6 +39,7 @@ public class ClubsService {
         int clubIndex = findClubIndex(id);
         if (clubIndex >= 0) {
             clubs.remove(clubIndex);
+            return;
         }
         // TODO: Throw an exception
     }
