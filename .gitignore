@@ -21,10 +21,10 @@ nbactions.xml
 nb-configuration.xml
 
 # Eclipse noise
-.settings
-.settings/*
-.project
-.classpath
+#.settings
+#.settings/*
+#.project
+#.classpath
 
 # Maven plugins noise
 dependency-reduced-pom.xml
