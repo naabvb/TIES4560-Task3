@@ -2,6 +2,7 @@ package CourseClub.register;
 
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -13,24 +14,23 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-/**
- * Root resource (exposed at "myresource" path)
- */
+
+@Singleton
 @Path("/courses")
 public class CoursesResource {
 
 	CoursesService coursesService = new CoursesService();
 
 	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public String asd() {
-		return "toimin";
-	}
-
-	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Course> getCourses(@QueryParam("title") String title, @QueryParam("teacher") String teacher) {
-		// do stuff here
+	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher) {
+		if (teacher != null) {
+			return coursesService.getFilteredByTeacher(teacher, size);
+		}
+		if (size != 0) {
+			return coursesService.getFilteredBySize(size);
+		}
+
 		return coursesService.getAllCourses();
 	}
 
