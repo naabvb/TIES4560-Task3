@@ -16,8 +16,7 @@ With a JSON body of:
 ```
 {
 	"title": "testikurssi2",
-	"teacher": "vesa",
-	"students": []
+	"teacher": "vesa"
 }
 ```
 Get all courses:
