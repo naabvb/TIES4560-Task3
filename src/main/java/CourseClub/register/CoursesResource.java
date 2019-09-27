@@ -14,12 +14,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-
 @Singleton
 @Path("/courses")
 public class CoursesResource {
 
 	CoursesService coursesService = new CoursesService();
+	StudentsResource studentsResource = new StudentsResource();
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -32,6 +32,10 @@ public class CoursesResource {
 		}
 
 		return coursesService.getAllCourses();
+	}
+
+	public CoursesService getCoursesService() {
+		return coursesService;
 	}
 
 	@GET
@@ -62,10 +66,9 @@ public class CoursesResource {
 		coursesService.removeCourse(id);
 	}
 
-	@GET
 	@Path("/{courseId}/students")
-	public StudentsResource getStudetsResource() {
-		return new StudentsResource();
+	public StudentsResource getStudentsResource() {
+		return studentsResource;
 	}
 
 }

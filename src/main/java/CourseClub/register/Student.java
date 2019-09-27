@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Student {
 	private String name;
 	private long id;
-	private List<Long> courseIds = new ArrayList<Long>();
+	private List<Long> courseIds = new ArrayList<Long>(); // Kurssit joilla ollaan
 
 	public String getName() {
 		return name;
@@ -17,6 +17,10 @@ public class Student {
 
 	public List<Long> getCourseIds() {
 		return courseIds;
+	}
+
+	public void addCourseId(long courseId) {
+		this.courseIds.add(courseId);
 	}
 
 	public void setCourseIds(List<Long> courseIds) {

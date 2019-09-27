@@ -10,7 +10,8 @@ public class Course {
 	private long id;
 	private String title;
 	private String teacher;
-	private List<Student> students;
+	private List<Student> students; // TODO: Onkohan tämä edes tarpeellinen, student on yhä nested mutta toimii nyt
+									// referenssi-periaatteella DIA 17
 
 	public Course() {
 		// stub
@@ -35,6 +36,10 @@ public class Course {
 
 	public List<Student> getStudents() {
 		return students;
+	}
+
+	public void addStudent(Student student) {
+		students.add(student);
 	}
 
 	public void setStudents(List<Student> students) {

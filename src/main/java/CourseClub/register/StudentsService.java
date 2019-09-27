@@ -3,6 +3,9 @@ package CourseClub.register;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Singleton;
+
+@Singleton
 public class StudentsService {
 
 	private List<Student> students;
@@ -28,14 +31,27 @@ public class StudentsService {
 		StudentsService.nextId = nextId;
 	}
 
-	public List<Student> getAllStudents(long courseId) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Student> getStudentsFromCourse(long courseId) {
+		List<Student> filtered = new ArrayList<Student>();
+		for (int i = 0; i < students.size(); i++) {
+			if (students.get(i).getCourseIds().contains(courseId)) {
+				filtered.add(students.get(i));
+			}
+		}
+		return filtered;
 	}
 
 	public Student getStudent(long courseId, long studentId) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public Student addStudent(Student student, long courseId) {
+		student.setId(nextId);
+		student.addCourseId(courseId);
+		nextId++;
+		students.add(student);
+		return student;
 	}
 
 }
