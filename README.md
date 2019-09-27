@@ -12,7 +12,7 @@ Adding a course:
 ```
 POST localhost:8080/register/webapi/courses
 ```
-With a JSON body
+With a JSON body of:
 ```
 {
 	"title": "testikurssi2",
