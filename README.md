@@ -29,3 +29,17 @@ Get course by id:
 GET localhost:8080/register/webapi/courses/{courseId}
 GET localhost:8080/register/webapi/courses/3
 ```
+Add student to course:
+```
+POST localhost:8080/register/webapi/courses/{courseId}/students
+```
+With a JSON body of:
+```
+{
+	"name": "Oppi oppilas"
+}
+```
+Get students of a course:
+```
+GET localhost:8080/register/webapi/courses/{courseId}/students
+```
