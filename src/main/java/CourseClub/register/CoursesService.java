@@ -40,9 +40,9 @@ public class CoursesService {
 
 	public Course addCourse(Course course) {
 		course.setId(nextId);
-		List<Student> empty = new ArrayList<Student>();
-		if (course.getStudents() == null)
-			course.setStudents(empty);
+		// List<Student> empty = new ArrayList<Student>();
+		// if (course.getStudents() == null)
+		// course.setStudents(empty);
 		nextId++;
 		courses.add(course);
 		return course;

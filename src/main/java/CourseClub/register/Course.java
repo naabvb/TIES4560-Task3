@@ -1,5 +1,6 @@
 package CourseClub.register;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,11 +11,28 @@ public class Course {
 	private long id;
 	private String title;
 	private String teacher;
-	private List<Student> students; // TODO: Onkohan tämä edes tarpeellinen, student on yhä nested mutta toimii nyt
-									// referenssi-periaatteella DIA 17
+	private List<Link> links = new ArrayList<Link>();
+	// private List<Student> students; // TODO: Onkohan tämä edes tarpeellinen,
+	// student on yhä nested mutta toimii nyt
+	// referenssi-periaatteella DIA 17
 
 	public Course() {
 		// stub
+	}
+
+	public List<Link> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<Link> links) {
+		this.links = links;
+	}
+
+	public void addLink(String url, String rel) {
+		Link link = new Link();
+		link.setLink(url);
+		link.setRel(rel);
+		links.add(link);
 	}
 
 	public void setId(long id) {
@@ -32,18 +50,6 @@ public class Course {
 
 	public void setTeacher(String teacher) {
 		this.teacher = teacher;
-	}
-
-	public List<Student> getStudents() {
-		return students;
-	}
-
-	public void addStudent(Student student) {
-		students.add(student);
-	}
-
-	public void setStudents(List<Student> students) {
-		this.students = students;
 	}
 
 	public String getTitle() {

@@ -1,5 +1,6 @@
 package CourseClub.register;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.inject.Singleton;
@@ -12,7 +13,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Singleton
 @Path("/courses")
@@ -34,10 +38,6 @@ public class CoursesResource {
 		return coursesService.getAllCourses();
 	}
 
-	public CoursesService getCoursesService() {
-		return coursesService;
-	}
-
 	@GET
 	@Path("/{courseId}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -48,8 +48,19 @@ public class CoursesResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Course addCourse(Course course) {
-		return coursesService.addCourse(course);
+	public Response addCourse(Course course, @Context UriInfo uriInfo) {
+		Course newCourse = coursesService.addCourse(course);
+		String uri = uriInfo.getBaseUriBuilder().path(CoursesResource.class).path(Long.toString(course.getId())).build()
+				.toString();
+		newCourse.addLink(uri, "self");
+
+		uri = uriInfo.getBaseUriBuilder().path(CoursesResource.class).path(CoursesResource.class, "getStudentsResource")
+				.resolveTemplate("courseId", course.getId()).build().toString();
+		newCourse.addLink(uri, "students");
+		String newId = String.valueOf(newCourse.getId());
+		URI url = uriInfo.getAbsolutePathBuilder().path(newId).build();
+		return Response.created(url).entity(newCourse).build();
+
 	}
 
 	@PUT
