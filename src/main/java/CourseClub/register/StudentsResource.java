@@ -36,7 +36,7 @@ public class StudentsResource {
 		newStudent.addLink(uri, "self");
 
 		uri = uriInfo.getBaseUriBuilder().path(CoursesResource.class).path(Long.toString(courseId)).build().toString();
-		newStudent.addLink(uri, "Course");
+		newStudent.addLink(uri, "course");
 
 		String newId = String.valueOf(newStudent.getId());
 		URI url = uriInfo.getAbsolutePathBuilder().path(newId).build();
@@ -58,7 +58,7 @@ public class StudentsResource {
 
 	@DELETE
 	@Path("/{studentId}")
-	public void deleteCourse(@PathParam("studentId") long studentId) {
+	public void deleteStudent(@PathParam("studentId") long studentId) {
 		studentsService.removeStudent(studentId);
 	}
 }

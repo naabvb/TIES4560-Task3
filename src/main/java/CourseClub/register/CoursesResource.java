@@ -24,6 +24,7 @@ public class CoursesResource {
 
 	CoursesService coursesService = new CoursesService();
 	StudentsResource studentsResource = new StudentsResource();
+	FeedbackResource feedbackResource = new FeedbackResource();
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -57,6 +58,11 @@ public class CoursesResource {
 		uri = uriInfo.getBaseUriBuilder().path(CoursesResource.class).path(CoursesResource.class, "getStudentsResource")
 				.resolveTemplate("courseId", course.getId()).build().toString();
 		newCourse.addLink(uri, "students");
+
+		uri = uriInfo.getBaseUriBuilder().path(CoursesResource.class).path(CoursesResource.class, "getFeedbackResource")
+				.resolveTemplate("courseId", course.getId()).build().toString();
+		newCourse.addLink(uri, "feedback");
+
 		String newId = String.valueOf(newCourse.getId());
 		URI url = uriInfo.getAbsolutePathBuilder().path(newId).build();
 		return Response.created(url).entity(newCourse).build();
@@ -80,6 +86,11 @@ public class CoursesResource {
 	@Path("/{courseId}/students")
 	public StudentsResource getStudentsResource() {
 		return studentsResource;
+	}
+
+	@Path("/{courseId}/feedback")
+	public FeedbackResource getFeedbackResource() {
+		return feedbackResource;
 	}
 
 }
