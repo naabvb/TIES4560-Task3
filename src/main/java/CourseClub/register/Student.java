@@ -9,22 +9,36 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Student {
 	private String name;
 	private long id;
-	private List<Long> courseIds = new ArrayList<Long>(); // Kurssit joilla ollaan
+	private long onCourseId;
+	private List<Link> links = new ArrayList<Link>();
+	// private List<Long> courseIds = new ArrayList<Long>(); Tämä on turha koska
+	// oppilaita voi hakea vain per kurssi
+
+	public long getOnCourseId() {
+		return onCourseId;
+	}
+
+	public void setOnCourseId(long onCourseId) {
+		this.onCourseId = onCourseId;
+	}
+
+	public List<Link> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<Link> links) {
+		this.links = links;
+	}
+
+	public void addLink(String url, String rel) {
+		Link link = new Link();
+		link.setLink(url);
+		link.setRel(rel);
+		links.add(link);
+	}
 
 	public String getName() {
 		return name;
-	}
-
-	public List<Long> getCourseIds() {
-		return courseIds;
-	}
-
-	public void addCourseId(long courseId) {
-		this.courseIds.add(courseId);
-	}
-
-	public void setCourseIds(List<Long> courseIds) {
-		this.courseIds = courseIds;
 	}
 
 	public void setName(String name) {

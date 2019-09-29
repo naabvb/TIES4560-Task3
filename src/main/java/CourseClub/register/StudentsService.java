@@ -34,7 +34,7 @@ public class StudentsService {
 	public List<Student> getStudentsFromCourse(long courseId) {
 		List<Student> filtered = new ArrayList<Student>();
 		for (int i = 0; i < students.size(); i++) {
-			if (students.get(i).getCourseIds().contains(courseId)) {
+			if (students.get(i).getOnCourseId() == courseId) {
 				filtered.add(students.get(i));
 			}
 		}
@@ -43,7 +43,7 @@ public class StudentsService {
 
 	public Student getStudent(long courseId, long studentId) {
 		for (int i = 0; i < students.size(); i++) {
-			if (students.get(i).getId() == studentId)
+			if (students.get(i).getId() == studentId && students.get(i).getOnCourseId() == courseId)
 				return students.get(i);
 		}
 		return null; // TODO EXCEPTIONS!!!
@@ -51,7 +51,7 @@ public class StudentsService {
 
 	public Student addStudent(Student student, long courseId) {
 		student.setId(nextId);
-		student.addCourseId(courseId);
+		student.setOnCourseId(courseId);
 		nextId++;
 		students.add(student);
 		return student;
