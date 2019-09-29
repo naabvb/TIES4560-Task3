@@ -19,6 +19,21 @@ With a JSON body of:
 	"teacher": "vesa"
 }
 ```
+Update a course:
+```
+PUT localhost:8080/register/webapi/courses/{courseId}
+```
+With a JSON body of:
+```
+{
+	"title": "updated_title",
+	"teacher": "vesa_uusi"
+}
+```
+Delete a course:
+```
+DELETE localhost:8080/register/webapi/courses/{courseId}
+```
 Get all courses:
 ```
 GET localhost:8080/register/webapi/courses
@@ -43,7 +58,8 @@ Get students of a course:
 GET localhost:8080/register/webapi/courses/{courseId}/students
 ```
 
-Get a certain student of a certain course:
+Get a certain student (of a certain course):
 ```
 GET localhost:8080/register/webapi/courses/{courseId}/students/{studentId}
 ```
+
