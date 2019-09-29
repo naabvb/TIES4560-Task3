@@ -42,3 +42,8 @@ Get students of a course:
 ```
 GET localhost:8080/register/webapi/courses/{courseId}/students
 ```
+
+Get a certain student of a certain course:
+```
+GET localhost:8080/register/webapi/courses/{courseId}/students/{studentId}
+```
