@@ -8,6 +8,7 @@ Tomcat 9.0 or newer
 
 ## Examples
 
+### Courses
 Adding a course:
 ```
 POST localhost:8080/register/webapi/courses
@@ -43,6 +44,8 @@ Get course by id:
 GET localhost:8080/register/webapi/courses/{courseId}
 GET localhost:8080/register/webapi/courses/3
 ```
+### Students
+
 Add student to course:
 ```
 POST localhost:8080/register/webapi/courses/{courseId}/students
@@ -62,4 +65,26 @@ Get a certain student (of a certain course):
 ```
 GET localhost:8080/register/webapi/courses/{courseId}/students/{studentId}
 ```
+### Feedback
+Add feedback to course:
+```
+POST localhost:8080/register/webapi/courses/{courseId}/feedback
+```
+With a JSON body of:
+```
+{
+	"feedbackSender": "Mielensapahoittanut",
+	"feedbackText": "Kyllä nyt pahoitin mieleni niiin että"
+}
+```
+Get feedback of a course:
+```
+GET localhost:8080/register/webapi/courses/{courseId}/feedback
+```
+
+Get a certain feedback (of a certain course):
+```
+GET localhost:8080/register/webapi/courses/{courseId}/feedback/{feedbackId}
+```
+
 
