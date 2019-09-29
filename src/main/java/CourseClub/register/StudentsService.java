@@ -42,8 +42,11 @@ public class StudentsService {
 	}
 
 	public Student getStudent(long courseId, long studentId) {
-		// TODO Auto-generated method stub
-		return null;
+		for (int i = 0; i < students.size(); i++) {
+			if (students.get(i).getId() == studentId)
+				return students.get(i);
+		}
+		return null; // TODO EXCEPTIONS!!!
 	}
 
 	public Student addStudent(Student student, long courseId) {
