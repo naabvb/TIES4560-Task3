@@ -57,4 +57,31 @@ public class StudentsService {
 		return student;
 	}
 
+	public Student updateStudent(Student student) {
+		int index = findStudentIndex(student.getId());
+		if (index >= 0) {
+			students.set(index, student);
+			return student;
+		}
+		return null; // TODO ex??
+	}
+
+	private int findStudentIndex(long id) {
+		for (int i = 0; i < students.size(); i++) {
+			if (students.get(i).getId() == id)
+				return i;
+		}
+		return -1; // TODO EXCEPTION
+	}
+
+	public void removeStudent(long id) {
+		int index = findStudentIndex(id);
+		if (index >= 0) {
+			students.remove(index);
+		}
+
+		// TODO EX
+
+	}
+
 }
