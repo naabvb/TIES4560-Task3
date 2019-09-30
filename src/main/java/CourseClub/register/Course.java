@@ -12,9 +12,6 @@ public class Course {
 	private String title;
 	private String teacher;
 	private List<Link> links = new ArrayList<Link>();
-	// private List<Student> students; // TODO: Onkohan tämä edes tarpeellinen,
-	// student on yhä nested mutta toimii nyt
-	// referenssi-periaatteella DIA 17
 
 	public Course() {
 		// stub
@@ -61,7 +58,7 @@ public class Course {
 	}
 
 	public boolean hasRequiredAttributes() {
-		return ((this.getTitle() != null && !this.getTitle().isEmpty())
-				&& this.getTeacher() != null && !this.getTeacher().isEmpty());
+		return ((this.getTitle() != null && !this.getTitle().isEmpty()) && this.getTeacher() != null
+				&& !this.getTeacher().isEmpty());
 	}
 }

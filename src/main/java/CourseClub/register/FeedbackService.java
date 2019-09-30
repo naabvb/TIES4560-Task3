@@ -1,13 +1,13 @@
 package CourseClub.register;
 
-import CourseClub.register.Exceptions.BadRequestException;
-import CourseClub.register.Exceptions.ResourceNotFoundException;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
 import javax.ws.rs.core.Response;
+
+import CourseClub.register.Exceptions.BadRequestException;
+import CourseClub.register.Exceptions.ResourceNotFoundException;
 
 @Singleton
 public class FeedbackService {
@@ -96,7 +96,7 @@ public class FeedbackService {
 			if (feedbacks.get(i).getId() == id)
 				return i;
 		}
-		return -1; // TODO EXCEPTION
+		return -1;
 	}
 
 }

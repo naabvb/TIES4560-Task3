@@ -1,11 +1,12 @@
 package CourseClub.register;
 
-import CourseClub.register.Exceptions.BadRequestException;
-import CourseClub.register.Exceptions.ResourceNotFoundException;
-
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.ws.rs.core.Response;
+
+import CourseClub.register.Exceptions.BadRequestException;
+import CourseClub.register.Exceptions.ResourceNotFoundException;
 
 public class CoursesService {
 
@@ -42,15 +43,12 @@ public class CoursesService {
 				return i;
 		}
 
-		return -1; // TODO EXCEPTION
+		return -1;
 	}
 
 	public Course addCourse(Course course) {
 		if (course.hasRequiredAttributes()) {
 			course.setId(nextId);
-			// List<Student> empty = new ArrayList<Student>();
-			// if (course.getStudents() == null)
-			// course.setStudents(empty);
 			nextId++;
 			courses.add(course);
 			return course;
@@ -67,8 +65,7 @@ public class CoursesService {
 				course.setLinks(links);
 				courses.set(index, course);
 				return course;
-			}
-			else {
+			} else {
 				throw new BadRequestException("Couldn't update course; missing required attributes.");
 			}
 		} else {

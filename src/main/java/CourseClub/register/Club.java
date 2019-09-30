@@ -7,16 +7,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Club {
-    private long id;
-    private String name;
-    private List<Activity> activities;
-    private List<Link> links = new ArrayList<Link>();
-    
-    public Club() {
-        //
-    }
+	private long id;
+	private String name;
+	private List<Link> links = new ArrayList<Link>();
 
-    public List<Link> getLinks() {
+	public Club() {
+		//
+	}
+
+	public List<Link> getLinks() {
 		return links;
 	}
 
@@ -30,26 +29,24 @@ public class Club {
 		link.setRel(rel);
 		links.add(link);
 	}
-    
-    public long getId() {
-        return id;
-    }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	public long getId() {
+		return id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public boolean hasRequiredAttributes() {
-        return (this.getName() != null && !this.getName().isEmpty());
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    // TODO: add operations for editing activities?
+	public boolean hasRequiredAttributes() {
+		return (this.getName() != null && !this.getName().isEmpty());
+	}
 }

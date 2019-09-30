@@ -1,13 +1,13 @@
 package CourseClub.register;
 
-import CourseClub.register.Exceptions.BadRequestException;
-import CourseClub.register.Exceptions.ResourceNotFoundException;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
 import javax.ws.rs.core.Response;
+
+import CourseClub.register.Exceptions.BadRequestException;
+import CourseClub.register.Exceptions.ResourceNotFoundException;
 
 @Singleton
 public class ActivitiesService {
@@ -50,7 +50,7 @@ public class ActivitiesService {
 			if (activities.get(i).getId() == activityId && activities.get(i).getClubId() == clubId)
 				return activities.get(i);
 		}
-		return null; // TODO EXCEPTIONS!!!
+		return null;
 	}
 
 	public Activity addActivity(Activity activity, long clubId) {

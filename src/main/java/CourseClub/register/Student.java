@@ -11,8 +11,6 @@ public class Student {
 	private long id;
 	private long onCourseId;
 	private List<Link> links = new ArrayList<Link>();
-	// private List<Long> courseIds = new ArrayList<Long>(); Tämä on turha koska
-	// oppilaita voi hakea vain per kurssi
 
 	public long getOnCourseId() {
 		return onCourseId;
