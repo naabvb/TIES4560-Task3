@@ -1,9 +1,13 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.BadRequestException;
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
 
 @Singleton
 public class ActivitiesService {
@@ -50,22 +54,31 @@ public class ActivitiesService {
 	}
 
 	public Activity addActivity(Activity activity, long clubId) {
-		activity.setId(nextId);
-		activity.setClubId(clubId);
-		nextId++;
-		activities.add(activity);
-		return activity;
+		if (activity.hasRequiredAttributes()) {
+			activity.setId(nextId);
+			activity.setClubId(clubId);
+			nextId++;
+			activities.add(activity);
+			return activity;
+		} else {
+			throw new BadRequestException("Couldn't add activity; missing required attributes.");
+		}
 	}
 
 	public Activity updateActivity(Activity activity) {
 		int index = findActivityIndex(activity.getId());
 		if (index >= 0) {
-			List<Link> links = activities.get(index).getLinks();
-			activity.setLinks(links);
-			activities.set(index, activity);
-			return activity;
+			if (activity.hasRequiredAttributes()) {
+				List<Link> links = activities.get(index).getLinks();
+				activity.setLinks(links);
+				activities.set(index, activity);
+				return activity;
+			} else {
+				throw new BadRequestException("Couldn't update activity; missing required attributes.");
+			}
+		} else {
+			throw new ResourceNotFoundException("Couldn't find activity with id " + activity.getId());
 		}
-		return null; // TODO ex??
 	}
 
 	private int findActivityIndex(long id) {
@@ -73,17 +86,17 @@ public class ActivitiesService {
 			if (activities.get(i).getId() == id)
 				return i;
 		}
-		return -1; // TODO EXCEPTION
+		return -1;
 	}
 
-	public void removeActivity(long id) {
+	public Response removeActivity(long id) {
 		int index = findActivityIndex(id);
 		if (index >= 0) {
 			activities.remove(index);
+			return Response.status(204).build();
+		} else {
+			throw new ResourceNotFoundException("Couldn't find activity with id " + id);
 		}
-
-		// TODO EX
-
 	}
 
 }

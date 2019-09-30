@@ -3,6 +3,7 @@ package CourseClub.register;
 import CourseClub.register.Exceptions.ResourceNotFoundException;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
@@ -15,10 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 
 @Singleton
 @Path("/courses")
@@ -30,15 +28,30 @@ public class CoursesResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher) {
+	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher) throws NoContentException {
+		List<Course> courses = new ArrayList<>();
 		if (teacher != null) {
-			return coursesService.getFilteredByTeacher(teacher, size);
+			courses = coursesService.getFilteredByTeacher(teacher, size);
+			if (!courses.isEmpty()) {
+				return courses;
+			} else {
+				throw new NoContentException("No courses found.");
+			}
 		}
 		if (size != 0) {
-			return coursesService.getFilteredBySize(size);
+			courses = coursesService.getFilteredBySize(size);
+			if (!courses.isEmpty()) {
+				return courses;
+			} else {
+				throw new NoContentException("No courses found.");
+			}
 		}
-
-		return coursesService.getAllCourses();
+		courses = coursesService.getAllCourses();
+		if (!courses.isEmpty()) {
+			return courses;
+		} else {
+			throw new NoContentException("No courses found.");
+		}
 	}
 
 	@GET

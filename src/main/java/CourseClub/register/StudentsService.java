@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
 
 @Singleton
 public class StudentsService {
@@ -86,12 +87,14 @@ public class StudentsService {
 		return -1; // TODO EXCEPTION
 	}
 
-	public void removeStudent(long id) {
+	public Response removeStudent(long id) {
 		int index = findStudentIndex(id);
 		if (index >= 0) {
 			students.remove(index);
+			return Response.status(204).build();
+		} else {
+			throw new ResourceNotFoundException("Couldn't find student with id " + id);
 		}
-		// TODO EX
 	}
 
 }

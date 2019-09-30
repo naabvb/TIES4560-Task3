@@ -3,6 +3,7 @@ package CourseClub.register;
 import CourseClub.register.Exceptions.BadRequestException;
 import CourseClub.register.Exceptions.ResourceNotFoundException;
 
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,13 +50,14 @@ public class ClubsService {
         }
     }
 
-    public void removeClub(long id) {
+    public Response removeClub(long id) {
         int clubIndex = findClubIndex(id);
         if (clubIndex >= 0) {
             clubs.remove(clubIndex);
-            return;
+            return Response.status(204).build();
+        } else {
+            throw new ResourceNotFoundException("Couldn't find club with id " + id);
         }
-        // TODO: Throw an exception
     }
     
     private int findClubIndex(long id) {

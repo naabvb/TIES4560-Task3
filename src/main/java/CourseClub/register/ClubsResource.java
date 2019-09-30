@@ -5,10 +5,7 @@ import CourseClub.register.Exceptions.ResourceNotFoundException;
 
 import javax.inject.Singleton;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.net.URI;
 import java.util.List;
 
@@ -31,8 +28,13 @@ public class ClubsResource {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Club> getClubs() {
-        return clubsService.getAllClubs();
+    public List<Club> getClubs() throws NoContentException {
+        List<Club> clubs =  clubsService.getAllClubs();
+        if (!clubs.isEmpty()) {
+            return clubs;
+        } else {
+            throw new NoContentException("No courses found.");
+        }
     }
     
     @GET
@@ -76,8 +78,8 @@ public class ClubsResource {
     @DELETE
     @Path("/{clubId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public void deleteClub(@PathParam("clubId") long id) {
-        clubsService.removeClub(id);
+    public Response deleteClub(@PathParam("clubId") long id) {
+        return clubsService.removeClub(id);
     }
     
 	@Path("/{clubId}/activities")

@@ -55,4 +55,8 @@ public class Activity {
 		links.add(link);
 	}
 
+	public boolean hasRequiredAttributes() {
+        return (this.getName() != null && !this.getName().isEmpty());
+    }
+
 }

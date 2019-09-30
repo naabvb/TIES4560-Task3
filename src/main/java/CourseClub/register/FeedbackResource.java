@@ -50,7 +50,7 @@ public class FeedbackResource {
 	public Feedback getFeedback(@PathParam("courseId") long courseId, @PathParam("feedbackId") long feedbackId) {
 		Feedback feedback = feedbackService.getFeedback(courseId, feedbackId);
 		if (feedback == null) {
-			throw new ResourceNotFoundException("Feedback with id " + feedbackId + " on course " + courseId + "not found.");
+			throw new ResourceNotFoundException("Feedback with id " + feedbackId + " on course " + courseId + " not found.");
 		}
 		return feedback;
 	}
@@ -64,7 +64,7 @@ public class FeedbackResource {
 
 	@DELETE
 	@Path("/{feedbackId}")
-	public void deleteFeedback(@PathParam("feedbackId") long feedbackId) {
-		feedbackService.removeFeedback(feedbackId);
+	public Response deleteFeedback(@PathParam("feedbackId") long feedbackId) {
+		return feedbackService.removeFeedback(feedbackId);
 	}
 }

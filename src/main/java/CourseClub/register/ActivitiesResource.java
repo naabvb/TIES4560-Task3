@@ -1,5 +1,7 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
 import java.net.URI;
 import java.util.List;
 
@@ -46,7 +48,11 @@ public class ActivitiesResource {
 	@GET
 	@Path("/{activityId}")
 	public Activity getActivity(@PathParam("clubId") long clubId, @PathParam("activityId") long activityId) {
-		return activitiesService.getActivity(clubId, activityId);
+		Activity activity =  activitiesService.getActivity(clubId, activityId);
+		if (activity == null) {
+			throw new ResourceNotFoundException("Activity with id " + activityId + " on club " + clubId + "not found.");
+		}
+		return activity;
 	}
 
 	@PUT
@@ -58,7 +64,7 @@ public class ActivitiesResource {
 
 	@DELETE
 	@Path("/{activityId}")
-	public void deleteActivity(@PathParam("activityId") long activityId) {
-		activitiesService.removeActivity(activityId);
+	public Response deleteActivity(@PathParam("activityId") long activityId) {
+		return activitiesService.removeActivity(activityId);
 	}
 }

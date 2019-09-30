@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
 
 @Singleton
 public class FeedbackService {
@@ -80,12 +81,14 @@ public class FeedbackService {
 		}
 	}
 
-	public void removeFeedback(long feedbackId) {
+	public Response removeFeedback(long feedbackId) {
 		int index = findFeedbackIndex(feedbackId);
 		if (index >= 0) {
 			feedbacks.remove(index);
+			return Response.status(204).build();
+		} else {
+			throw new ResourceNotFoundException("Couldn't find feedback with id " + feedbackId);
 		}
-
 	}
 
 	private int findFeedbackIndex(long id) {

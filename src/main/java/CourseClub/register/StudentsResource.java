@@ -64,7 +64,7 @@ public class StudentsResource {
 
 	@DELETE
 	@Path("/{studentId}")
-	public void deleteStudent(@PathParam("studentId") long studentId) {
-		studentsService.removeStudent(studentId);
+	public Response deleteStudent(@PathParam("studentId") long studentId) {
+		return studentsService.removeStudent(studentId);
 	}
 }
