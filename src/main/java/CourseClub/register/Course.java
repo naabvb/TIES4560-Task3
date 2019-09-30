@@ -59,4 +59,9 @@ public class Course {
 	public long getId() {
 		return id;
 	}
+
+	public boolean hasRequiredAttributes() {
+		return ((this.getTitle() != null && !this.getTitle().isEmpty())
+				&& this.getTeacher() != null && !this.getTeacher().isEmpty());
+	}
 }

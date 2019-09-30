@@ -46,6 +46,10 @@ public class Club {
     public void setName(String name) {
         this.name = name;
     }
-    
+
+    public boolean hasRequiredAttributes() {
+        return (this.getName() != null && !this.getName().isEmpty());
+    }
+
     // TODO: add operations for editing activities?
 }

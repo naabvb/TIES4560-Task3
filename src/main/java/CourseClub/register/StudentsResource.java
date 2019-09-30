@@ -1,5 +1,7 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
 import java.net.URI;
 import java.util.List;
 
@@ -46,7 +48,11 @@ public class StudentsResource {
 	@GET
 	@Path("/{studentId}")
 	public Student getStudent(@PathParam("courseId") long courseId, @PathParam("studentId") long studentId) {
-		return studentsService.getStudent(courseId, studentId);
+		Student student = studentsService.getStudent(courseId, studentId);
+		if (student == null) {
+			throw new ResourceNotFoundException("Student with id " + studentId + " on course " + courseId + " not found");
+		}
+		return student;
 	}
 
 	@PUT

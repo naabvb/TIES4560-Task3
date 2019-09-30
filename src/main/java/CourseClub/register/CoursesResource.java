@@ -1,5 +1,7 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
 import java.net.URI;
 import java.util.List;
 
@@ -44,6 +46,9 @@ public class CoursesResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Course getCourse(@PathParam("courseId") long id) {
 		Course course = coursesService.getCourse(id);
+		if (course == null) {
+			throw new ResourceNotFoundException("Course with id " + id + " not found.");
+		}
 		return course;
 	}
 
@@ -82,8 +87,8 @@ public class CoursesResource {
 	@DELETE
 	@Path("/{courseId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public void deleteCourse(@PathParam("courseId") long id) {
-		coursesService.removeCourse(id);
+	public Response deleteCourse(@PathParam("courseId") long id) {
+		return coursesService.removeCourse(id);
 	}
 
 	@Path("/{courseId}/students")

@@ -1,21 +1,16 @@
 package CourseClub.register;
 
-import java.net.URI;
-import java.util.List;
+
+import CourseClub.register.Exceptions.ResourceNotFoundException;
 
 import javax.inject.Singleton;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.List;
 
 @Singleton
 @Path("/clubs")
@@ -45,6 +40,9 @@ public class ClubsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Club getClub(@PathParam("clubId") long id) {
         Club club = clubsService.getClub(id);
+        if (club == null) {
+            throw new ResourceNotFoundException("Club with id " + id + " not found.");
+        }
         return club;
     }
     

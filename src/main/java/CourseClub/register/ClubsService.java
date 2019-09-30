@@ -1,5 +1,8 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.BadRequestException;
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,25 +19,34 @@ public class ClubsService {
         if (clubIndex >= 0) {
             return clubs.get(clubIndex);
         }
-        return null; // TODO: Throw an exception instead?
+        return null;
     }
 
     public Club addClub(Club club) {
-        club.setId(nextId);
-        nextId++;
-        clubs.add(club);
-        return club;
+        if (club.hasRequiredAttributes()) {
+            club.setId(nextId);
+            nextId++;
+            clubs.add(club);
+            return club;
+        } else {
+            throw new BadRequestException("Couldn't add club; missing required attributes.");
+        }
     }
 
     public Club updateClub(Club club) {
         int clubIndex = findClubIndex(club.getId());
         if (clubIndex >= 0) {
-        	List<Link> links = clubs.get(clubIndex).getLinks();
-        	club.setLinks(links);
-            clubs.set(clubIndex, club);
-            return club;
+            if (club.hasRequiredAttributes()) {
+                List<Link> links = clubs.get(clubIndex).getLinks();
+                club.setLinks(links);
+                clubs.set(clubIndex, club);
+                return club;
+            } else {
+                throw new BadRequestException("Couldn't update club; missing required attributes.");
+            }
+        } else {
+            throw new ResourceNotFoundException("Couldn't find club with id " + club.getId());
         }
-        return null; // TODO: throw an exception
     }
 
     public void removeClub(long id) {
@@ -52,6 +64,6 @@ public class ClubsService {
                 return i;
             }
         }
-        return -1; // TODO: Throw an exception instead?
+        return -1;
     }
 }

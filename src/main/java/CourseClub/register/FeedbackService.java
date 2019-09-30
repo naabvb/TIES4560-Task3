@@ -1,5 +1,8 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.BadRequestException;
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,11 +45,15 @@ public class FeedbackService {
 	}
 
 	public Feedback addFeedback(Feedback feedback, long courseId) {
-		feedback.setId(nextId);
-		feedback.setOnCourseId(courseId); // TODO PUUTTUVAT EXCP
-		nextId++;
-		feedbacks.add(feedback);
-		return feedback;
+		if (feedback.hasRequiredAttributes()) {
+			feedback.setId(nextId);
+			feedback.setOnCourseId(courseId);
+			nextId++;
+			feedbacks.add(feedback);
+			return feedback;
+		} else {
+			throw new BadRequestException("Couldn't add feedback; missing required attributes.");
+		}
 	}
 
 	public Feedback getFeedback(long courseId, long feedbackId) {
@@ -54,18 +61,23 @@ public class FeedbackService {
 			if (feedbacks.get(i).getId() == feedbackId && feedbacks.get(i).getOnCourseId() == courseId)
 				return feedbacks.get(i);
 		}
-		return null; // EXP
+		return null;
 	}
 
 	public Feedback updateFeedback(Feedback feedback) {
 		int index = findFeedbackIndex(feedback.getId());
 		if (index >= 0) {
-			List<Link> links = feedbacks.get(index).getLinks();
-			feedback.setLinks(links);
-			feedbacks.set(index, feedback);
-			return feedback;
+			if (feedback.hasRequiredAttributes()) {
+				List<Link> links = feedbacks.get(index).getLinks();
+				feedback.setLinks(links);
+				feedbacks.set(index, feedback);
+				return feedback;
+			} else {
+				throw new BadRequestException("Couldn't update feedback; missing required attributes.");
+			}
+		} else {
+			throw new ResourceNotFoundException("Couldn't find feedback with id " + feedback.getId());
 		}
-		return null; // eXP
 	}
 
 	public void removeFeedback(long feedbackId) {

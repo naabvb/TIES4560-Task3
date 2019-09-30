@@ -56,4 +56,8 @@ public class Student {
 	public Student() {
 		// Stub
 	}
+
+	public boolean hasRequiredAttributes() {
+		return (this.getName() != null && !this.getName().isEmpty());
+	}
 }

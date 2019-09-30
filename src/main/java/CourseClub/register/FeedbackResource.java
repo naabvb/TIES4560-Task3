@@ -1,5 +1,7 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
 import java.net.URI;
 import java.util.List;
 
@@ -46,7 +48,11 @@ public class FeedbackResource {
 	@GET
 	@Path("/{feedbackId}")
 	public Feedback getFeedback(@PathParam("courseId") long courseId, @PathParam("feedbackId") long feedbackId) {
-		return feedbackService.getFeedback(courseId, feedbackId);
+		Feedback feedback = feedbackService.getFeedback(courseId, feedbackId);
+		if (feedback == null) {
+			throw new ResourceNotFoundException("Feedback with id " + feedbackId + " on course " + courseId + "not found.");
+		}
+		return feedback;
 	}
 
 	@PUT

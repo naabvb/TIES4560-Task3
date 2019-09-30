@@ -1,5 +1,9 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.BadRequestException;
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +30,10 @@ public class CoursesService {
 
 	public Course getCourse(long id) {
 		int index = findCourseIndex(id);
-		return courses.get(index);
+		if (index >= 0) {
+			return courses.get(index);
+		}
+		return null;
 	}
 
 	private int findCourseIndex(long id) {
@@ -39,34 +46,44 @@ public class CoursesService {
 	}
 
 	public Course addCourse(Course course) {
-		course.setId(nextId);
-		// List<Student> empty = new ArrayList<Student>();
-		// if (course.getStudents() == null)
-		// course.setStudents(empty);
-		nextId++;
-		courses.add(course);
-		return course;
+		if (course.hasRequiredAttributes()) {
+			course.setId(nextId);
+			// List<Student> empty = new ArrayList<Student>();
+			// if (course.getStudents() == null)
+			// course.setStudents(empty);
+			nextId++;
+			courses.add(course);
+			return course;
+		} else {
+			throw new BadRequestException("Couldn't add course; missing required attributes.");
+		}
 	}
 
 	public Course updateCourse(Course course) {
 		int index = findCourseIndex(course.getId());
 		if (index >= 0) {
-			List<Link> links = courses.get(index).getLinks();
-			course.setLinks(links);
-			courses.set(index, course);
-			return course;
+			if (course.hasRequiredAttributes()) {
+				List<Link> links = courses.get(index).getLinks();
+				course.setLinks(links);
+				courses.set(index, course);
+				return course;
+			}
+			else {
+				throw new BadRequestException("Couldn't update course; missing required attributes.");
+			}
+		} else {
+			throw new ResourceNotFoundException("Couldn't find course with id " + course.getId());
 		}
-		return null; // TODO ex??
 	}
 
-	public void removeCourse(long id) {
+	public Response removeCourse(long id) {
 		int index = findCourseIndex(id);
 		if (index >= 0) {
 			courses.remove(index);
+			return Response.status(204).build();
+		} else {
+			throw new ResourceNotFoundException("Couldn't find course with id " + id);
 		}
-
-		// TODO EX
-
 	}
 
 	public List<Course> getFilteredByTeacher(String teacher, int size) {
