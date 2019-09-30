@@ -1,9 +1,13 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.BadRequestException;
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
+import javax.ws.rs.core.Response;
 
 @Singleton
 public class StudentsService {
@@ -46,24 +50,33 @@ public class StudentsService {
 			if (students.get(i).getId() == studentId && students.get(i).getOnCourseId() == courseId)
 				return students.get(i);
 		}
-		return null; // TODO EXCEPTIONS!!!
+		return null;
 	}
 
 	public Student addStudent(Student student, long courseId) {
-		student.setId(nextId);
-		student.setOnCourseId(courseId);
-		nextId++;
-		students.add(student);
-		return student;
+		if (student.hasRequiredAttributes()) {
+			student.setId(nextId);
+			student.setOnCourseId(courseId);
+			nextId++;
+			students.add(student);
+			return student;
+		} else {
+			throw new BadRequestException("Couldn't add student; missing required attributes.");
+		}
 	}
 
 	public Student updateStudent(Student student) {
 		int index = findStudentIndex(student.getId());
 		if (index >= 0) {
-			students.set(index, student);
-			return student;
+			if (student.hasRequiredAttributes()) {
+				students.set(index, student);
+				return student;
+			} else {
+				throw new BadRequestException("Couldn't update student; missing required attributes.");
+			}
+		} else {
+			throw new ResourceNotFoundException("Couldn't find student with id " + student.getId());
 		}
-		return null; // TODO ex??
 	}
 
 	private int findStudentIndex(long id) {
@@ -74,14 +87,14 @@ public class StudentsService {
 		return -1; // TODO EXCEPTION
 	}
 
-	public void removeStudent(long id) {
+	public Response removeStudent(long id) {
 		int index = findStudentIndex(id);
 		if (index >= 0) {
 			students.remove(index);
+			return Response.status(204).build();
+		} else {
+			throw new ResourceNotFoundException("Couldn't find student with id " + id);
 		}
-
-		// TODO EX
-
 	}
 
 }

@@ -1,6 +1,9 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Singleton;
@@ -13,10 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 
 @Singleton
 @Path("/courses")
@@ -28,15 +28,30 @@ public class CoursesResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher) {
+	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher) throws NoContentException {
+		List<Course> courses = new ArrayList<>();
 		if (teacher != null) {
-			return coursesService.getFilteredByTeacher(teacher, size);
+			courses = coursesService.getFilteredByTeacher(teacher, size);
+			if (!courses.isEmpty()) {
+				return courses;
+			} else {
+				throw new NoContentException("No courses found.");
+			}
 		}
 		if (size != 0) {
-			return coursesService.getFilteredBySize(size);
+			courses = coursesService.getFilteredBySize(size);
+			if (!courses.isEmpty()) {
+				return courses;
+			} else {
+				throw new NoContentException("No courses found.");
+			}
 		}
-
-		return coursesService.getAllCourses();
+		courses = coursesService.getAllCourses();
+		if (!courses.isEmpty()) {
+			return courses;
+		} else {
+			throw new NoContentException("No courses found.");
+		}
 	}
 
 	@GET
@@ -44,11 +59,15 @@ public class CoursesResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Course getCourse(@PathParam("courseId") long id) {
 		Course course = coursesService.getCourse(id);
+		if (course == null) {
+			throw new ResourceNotFoundException("Course with id " + id + " not found.");
+		}
 		return course;
 	}
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response addCourse(Course course, @Context UriInfo uriInfo) {
 		Course newCourse = coursesService.addCourse(course);
 		String uri = uriInfo.getBaseUriBuilder().path(CoursesResource.class).path(Long.toString(course.getId())).build()
@@ -72,6 +91,7 @@ public class CoursesResource {
 	@PUT
 	@Path("/{courseId}")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Course updateCourse(@PathParam("courseId") long id, Course course) {
 		course.setId(id);
 		return coursesService.updateCourse(course);
@@ -79,8 +99,9 @@ public class CoursesResource {
 
 	@DELETE
 	@Path("/{courseId}")
-	public void deleteCourse(@PathParam("courseId") long id) {
-		coursesService.removeCourse(id);
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteCourse(@PathParam("courseId") long id) {
+		return coursesService.removeCourse(id);
 	}
 
 	@Path("/{courseId}/students")

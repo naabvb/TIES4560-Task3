@@ -64,4 +64,9 @@ public class Feedback {
 		this.feedbackSender = feedbackSender;
 	}
 
+	public boolean hasRequiredAttributes() {
+		return ((this.getFeedbackSender() != null && !this.getFeedbackSender().isEmpty())
+                && (this.getFeedbackText() != null && !this.getFeedbackSender().isEmpty()));
+	}
+
 }

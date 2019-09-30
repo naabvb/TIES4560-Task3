@@ -1,5 +1,9 @@
 package CourseClub.register;
 
+import CourseClub.register.Exceptions.BadRequestException;
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,32 +20,44 @@ public class ClubsService {
         if (clubIndex >= 0) {
             return clubs.get(clubIndex);
         }
-        return null; // TODO: Throw an exception instead?
+        return null;
     }
 
     public Club addClub(Club club) {
-        club.setId(nextId);
-        nextId++;
-        clubs.add(club);
-        return club;
+        if (club.hasRequiredAttributes()) {
+            club.setId(nextId);
+            nextId++;
+            clubs.add(club);
+            return club;
+        } else {
+            throw new BadRequestException("Couldn't add club; missing required attributes.");
+        }
     }
 
     public Club updateClub(Club club) {
         int clubIndex = findClubIndex(club.getId());
         if (clubIndex >= 0) {
-            clubs.set(clubIndex, club);
-            return club;
+            if (club.hasRequiredAttributes()) {
+                List<Link> links = clubs.get(clubIndex).getLinks();
+                club.setLinks(links);
+                clubs.set(clubIndex, club);
+                return club;
+            } else {
+                throw new BadRequestException("Couldn't update club; missing required attributes.");
+            }
+        } else {
+            throw new ResourceNotFoundException("Couldn't find club with id " + club.getId());
         }
-        return null; // TODO: throw an exception
     }
 
-    public void removeClub(long id) {
+    public Response removeClub(long id) {
         int clubIndex = findClubIndex(id);
         if (clubIndex >= 0) {
             clubs.remove(clubIndex);
-            return;
+            return Response.status(204).build();
+        } else {
+            throw new ResourceNotFoundException("Couldn't find club with id " + id);
         }
-        // TODO: Throw an exception
     }
     
     private int findClubIndex(long id) {
@@ -50,6 +66,6 @@ public class ClubsService {
                 return i;
             }
         }
-        return -1; // TODO: Throw an exception instead?
+        return -1;
     }
 }
