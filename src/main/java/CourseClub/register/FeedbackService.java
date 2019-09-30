@@ -60,6 +60,8 @@ public class FeedbackService {
 	public Feedback updateFeedback(Feedback feedback) {
 		int index = findFeedbackIndex(feedback.getId());
 		if (index >= 0) {
+			List<Link> links = feedbacks.get(index).getLinks();
+			feedback.setLinks(links);
 			feedbacks.set(index, feedback);
 			return feedback;
 		}

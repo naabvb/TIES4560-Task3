@@ -29,6 +29,8 @@ public class ClubsService {
     public Club updateClub(Club club) {
         int clubIndex = findClubIndex(club.getId());
         if (clubIndex >= 0) {
+        	List<Link> links = clubs.get(clubIndex).getLinks();
+        	club.setLinks(links);
             clubs.set(clubIndex, club);
             return club;
         }

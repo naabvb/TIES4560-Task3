@@ -1,0 +1,89 @@
+package CourseClub.register;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Singleton;
+
+@Singleton
+public class ActivitiesService {
+
+	private List<Activity> activities;
+	private static long nextId = 0L;
+
+	public ActivitiesService() {
+		this.activities = new ArrayList<Activity>();
+	}
+
+	public List<Activity> getActivities() {
+		return activities;
+	}
+
+	public void setActivities(List<Activity> activities) {
+		this.activities = activities;
+	}
+
+	public static long getNextId() {
+		return nextId;
+	}
+
+	public static void setNextId(long nextId) {
+		ActivitiesService.nextId = nextId;
+	}
+
+	public List<Activity> getActivitiesFromClub(long clubId) {
+		List<Activity> filtered = new ArrayList<Activity>();
+		for (int i = 0; i < activities.size(); i++) {
+			if (activities.get(i).getClubId() == clubId) {
+				filtered.add(activities.get(i));
+			}
+		}
+		return filtered;
+	}
+
+	public Activity getActivity(long clubId, long activityId) {
+		for (int i = 0; i < activities.size(); i++) {
+			if (activities.get(i).getId() == activityId && activities.get(i).getClubId() == clubId)
+				return activities.get(i);
+		}
+		return null; // TODO EXCEPTIONS!!!
+	}
+
+	public Activity addActivity(Activity activity, long clubId) {
+		activity.setId(nextId);
+		activity.setClubId(clubId);
+		nextId++;
+		activities.add(activity);
+		return activity;
+	}
+
+	public Activity updateActivity(Activity activity) {
+		int index = findActivityIndex(activity.getId());
+		if (index >= 0) {
+			List<Link> links = activities.get(index).getLinks();
+			activity.setLinks(links);
+			activities.set(index, activity);
+			return activity;
+		}
+		return null; // TODO ex??
+	}
+
+	private int findActivityIndex(long id) {
+		for (int i = 0; i < activities.size(); i++) {
+			if (activities.get(i).getId() == id)
+				return i;
+		}
+		return -1; // TODO EXCEPTION
+	}
+
+	public void removeActivity(long id) {
+		int index = findActivityIndex(id);
+		if (index >= 0) {
+			activities.remove(index);
+		}
+
+		// TODO EX
+
+	}
+
+}

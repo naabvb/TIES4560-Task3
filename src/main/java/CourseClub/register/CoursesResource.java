@@ -49,6 +49,7 @@ public class CoursesResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response addCourse(Course course, @Context UriInfo uriInfo) {
 		Course newCourse = coursesService.addCourse(course);
 		String uri = uriInfo.getBaseUriBuilder().path(CoursesResource.class).path(Long.toString(course.getId())).build()
@@ -72,6 +73,7 @@ public class CoursesResource {
 	@PUT
 	@Path("/{courseId}")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Course updateCourse(@PathParam("courseId") long id, Course course) {
 		course.setId(id);
 		return coursesService.updateCourse(course);
@@ -79,6 +81,7 @@ public class CoursesResource {
 
 	@DELETE
 	@Path("/{courseId}")
+	@Produces(MediaType.APPLICATION_JSON)
 	public void deleteCourse(@PathParam("courseId") long id) {
 		coursesService.removeCourse(id);
 	}

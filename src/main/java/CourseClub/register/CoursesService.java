@@ -51,6 +51,8 @@ public class CoursesService {
 	public Course updateCourse(Course course) {
 		int index = findCourseIndex(course.getId());
 		if (index >= 0) {
+			List<Link> links = courses.get(index).getLinks();
+			course.setLinks(links);
 			courses.set(index, course);
 			return course;
 		}
