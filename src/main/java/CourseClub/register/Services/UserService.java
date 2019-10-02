@@ -52,4 +52,21 @@ public class UserService {
 		}
 	}
 
+	public User getUserById(long id) {
+		int index = findUserIndex(id);
+		if (index >= 0) {
+			return users.get(index);
+		}
+		return null;
+	}
+
+	private int findUserIndex(long id) {
+		for (int i = 0; i < users.size(); i++) {
+			if (users.get(i).getId() == id)
+				return i;
+		}
+
+		return -1;
+	}
+
 }
