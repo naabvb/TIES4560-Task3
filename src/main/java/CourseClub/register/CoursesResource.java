@@ -1,11 +1,11 @@
 package CourseClub.register;
 
-import CourseClub.register.Exceptions.ResourceNotFoundException;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -16,19 +16,28 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NoContentException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import CourseClub.register.Exceptions.ResourceNotFoundException;
 
 @Singleton
 @Path("/courses")
+@PermitAll
 public class CoursesResource {
 
 	CoursesService coursesService = new CoursesService();
+
 	StudentsResource studentsResource = new StudentsResource();
 	FeedbackResource feedbackResource = new FeedbackResource();
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher) throws NoContentException {
+	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher)
+			throws NoContentException {
 		List<Course> courses = new ArrayList<>();
 		if (teacher != null) {
 			courses = coursesService.getFilteredByTeacher(teacher, size);
@@ -57,6 +66,7 @@ public class CoursesResource {
 	@GET
 	@Path("/{courseId}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed("admin")
 	public Course getCourse(@PathParam("courseId") long id) {
 		Course course = coursesService.getCourse(id);
 		if (course == null) {
