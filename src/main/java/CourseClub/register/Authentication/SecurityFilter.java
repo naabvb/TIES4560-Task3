@@ -12,6 +12,7 @@ import javax.ws.rs.ext.Provider;
 import org.glassfish.jersey.internal.util.Base64;
 
 import CourseClub.register.Exceptions.ErrorMessage;
+import CourseClub.register.Services.UserService;
 
 @Provider
 public class SecurityFilter implements ContainerRequestFilter {

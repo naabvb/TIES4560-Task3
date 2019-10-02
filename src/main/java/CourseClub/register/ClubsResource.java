@@ -19,6 +19,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import CourseClub.register.Exceptions.ResourceNotFoundException;
+import CourseClub.register.Services.ClubsService;
+import CourseClub.register.Types.Club;
 
 @Singleton
 @Path("/clubs")
