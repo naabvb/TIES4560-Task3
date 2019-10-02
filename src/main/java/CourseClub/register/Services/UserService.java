@@ -1,6 +1,6 @@
 package CourseClub.register.Services;
 
-import CourseClub.register.Authentication.User;
+import CourseClub.register.Types.User;
 
 public class UserService {
 

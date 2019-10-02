@@ -1,4 +1,4 @@
-package CourseClub.register.Authentication;
+package CourseClub.register.Types;
 
 import java.security.Principal;
 import java.util.ArrayList;

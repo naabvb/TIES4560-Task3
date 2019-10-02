@@ -4,6 +4,8 @@ import java.security.Principal;
 
 import javax.ws.rs.core.SecurityContext;
 
+import CourseClub.register.Types.User;
+
 public class MySecurityContext implements SecurityContext {
 	private User user;
 	private String scheme;
