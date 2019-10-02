@@ -8,6 +8,28 @@ Tomcat 9.0 or newer
 
 ## Examples
 
+### Users
+Adding a user:
+```
+POST localhost:8080/register/webapi/users
+```
+With a JSON body of:
+```
+{
+	"firstName": "Etunimi",
+	"lastName": "Sukunimi",
+	"login": "usernimi",
+	"password": "salasana"
+}
+```
+Get all users:
+```
+GET localhost:8080/register/webapi/users
+```
+Get user by id:
+```
+GET localhost:8080/register/webapi/users/{usersId}
+```
 ### Courses
 Adding a course:
 ```
