@@ -1,6 +1,8 @@
 package CourseClub.register;
 
 import CourseClub.register.Exceptions.ResourceNotFoundException;
+import CourseClub.register.Services.ActivitiesService;
+import CourseClub.register.Types.Activity;
 
 import java.net.URI;
 import java.util.List;

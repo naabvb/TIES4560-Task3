@@ -1,4 +1,4 @@
-package CourseClub.register;
+package CourseClub.register.Types;
 
 public class Link {
 	private String link;

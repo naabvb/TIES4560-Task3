@@ -1,4 +1,4 @@
-package CourseClub.register;
+package CourseClub.register.Services;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,8 @@ import javax.ws.rs.core.Response;
 
 import CourseClub.register.Exceptions.BadRequestException;
 import CourseClub.register.Exceptions.ResourceNotFoundException;
+import CourseClub.register.Types.Course;
+import CourseClub.register.Types.Link;
 
 public class CoursesService {
 

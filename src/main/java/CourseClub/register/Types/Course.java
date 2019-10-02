@@ -1,4 +1,4 @@
-package CourseClub.register;
+package CourseClub.register.Types;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,13 +6,15 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Club {
+public class Course {
+
 	private long id;
-	private String name;
+	private String title;
+	private String teacher;
 	private List<Link> links = new ArrayList<Link>();
 
-	public Club() {
-		//
+	public Course() {
+		// stub
 	}
 
 	public List<Link> getLinks() {
@@ -30,23 +32,33 @@ public class Club {
 		links.add(link);
 	}
 
+	public void setId(long id) {
+		this.id = id;
+
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getTeacher() {
+		return teacher;
+	}
+
+	public void setTeacher(String teacher) {
+		this.teacher = teacher;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
 	public long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public boolean hasRequiredAttributes() {
-		return (this.getName() != null && !this.getName().isEmpty());
+		return ((this.getTitle() != null && !this.getTitle().isEmpty()) && this.getTeacher() != null
+				&& !this.getTeacher().isEmpty());
 	}
 }

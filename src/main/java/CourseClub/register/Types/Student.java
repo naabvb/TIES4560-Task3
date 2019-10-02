@@ -1,4 +1,4 @@
-package CourseClub.register;
+package CourseClub.register.Types;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,9 @@
-package CourseClub.register;
+package CourseClub.register.Services;
 
 import CourseClub.register.Exceptions.BadRequestException;
 import CourseClub.register.Exceptions.ResourceNotFoundException;
+import CourseClub.register.Types.Club;
+import CourseClub.register.Types.Link;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
