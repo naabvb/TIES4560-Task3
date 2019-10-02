@@ -26,7 +26,10 @@ Get all users:
 ```
 GET localhost:8080/register/webapi/users
 ```
-
+Get user by id:
+```
+GET localhost:8080/register/webapi/users/{usersId}
+```
 ### Courses
 Adding a course:
 ```
