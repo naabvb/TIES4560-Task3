@@ -7,6 +7,16 @@ import java.util.List;
 public class User implements Principal {
 	private String firstName;
 	private String lastName;
+	private long id;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
 	private String login;
 	private String email;
 	private String password;
