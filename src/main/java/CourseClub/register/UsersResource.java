@@ -1,10 +1,17 @@
 package CourseClub.register;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.inject.Singleton;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -17,6 +24,20 @@ public class UsersResource {
 
 	UserService usersService = new UserService();
 
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<User> getUser() throws NoContentException {
+		List<User> users = usersService.getUsers();
+		if (!users.isEmpty()) {
+			return users;
+		} else {
+			throw new NoContentException("No users found."); // TODO FIX THIS
+		}
+	}
+
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response createUser(User user, @Context UriInfo uriInfo) {
 		User newUser = usersService.createUser(user);
 

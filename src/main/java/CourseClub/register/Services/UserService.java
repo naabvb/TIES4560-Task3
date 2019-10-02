@@ -1,13 +1,19 @@
 package CourseClub.register.Services;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import CourseClub.register.Exceptions.BadRequestException;
 import CourseClub.register.Types.User;
 
 public class UserService {
 
 	private List<User> users;
 	private static long nextId = 0L;
+
+	public UserService() {
+		this.users = new ArrayList<User>();
+	}
 
 	public List<User> getUsers() {
 		return users;
@@ -36,8 +42,14 @@ public class UserService {
 	}
 
 	public User createUser(User user) {
-		// TODO Auto-generated method stub
-		return null;
+		if (user.hasRequiredAttributes()) {
+			user.setId(nextId);
+			nextId++;
+			users.add(user);
+			return user;
+		} else {
+			throw new BadRequestException("Couldn't add user; missing required attributes.");
+		}
 	}
 
 }

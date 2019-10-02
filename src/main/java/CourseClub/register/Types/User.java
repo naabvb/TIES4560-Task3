@@ -8,6 +8,10 @@ public class User implements Principal {
 	private String firstName;
 	private String lastName;
 	private long id;
+	private String login;
+	private String password;
+
+	private List<String> role;
 
 	public long getId() {
 		return id;
@@ -17,17 +21,14 @@ public class User implements Principal {
 		this.id = id;
 	}
 
-	private String login;
-	private String email;
-	private String password;
+	public User() {
+		// stub
+	}
 
-	private List<String> role;
-
-	public User(String firstName, String lastName, String login, String email, String password) {
+	public User(String firstName, String lastName, String login, String password) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.login = login;
-		this.email = email;
 		this.password = password;
 		this.role = new ArrayList<String>();
 	}
@@ -56,14 +57,6 @@ public class User implements Principal {
 		this.login = login;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public String getPassword() {
 		return password;
 	}
@@ -80,9 +73,13 @@ public class User implements Principal {
 		this.role = role;
 	}
 
-	@Override
 	public String getName() {
 		return this.firstName + " " + this.lastName;
+	}
+
+	public boolean hasRequiredAttributes() {
+		// TODO PLEASE DOERINO THE COPYPASTERINO
+		return true;
 	}
 
 }
