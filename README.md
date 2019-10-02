@@ -39,6 +39,14 @@ Get all courses:
 ```
 GET localhost:8080/register/webapi/courses
 ```
+Get courses with a certain teacher:
+```
+GET localhost:8080/register/webapi/courses?teacher={teacher}
+```
+Get x amount of courses:
+```
+GET localhost:8080/register/webapi/courses?size={x}
+```
 Get course by id:
 ```
 GET localhost:8080/register/webapi/courses/{courseId}
