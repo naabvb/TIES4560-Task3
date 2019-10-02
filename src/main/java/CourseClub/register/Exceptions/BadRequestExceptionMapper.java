@@ -8,7 +8,7 @@ import javax.ws.rs.ext.Provider;
 public class BadRequestExceptionMapper implements ExceptionMapper<BadRequestException> {
 
     public Response toResponse(BadRequestException exception) {
-        ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 404);
+        ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 400);
         return Response.status(400)
                 .entity(errorMessage)
                 .build();
