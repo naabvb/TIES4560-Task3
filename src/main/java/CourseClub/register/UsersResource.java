@@ -26,7 +26,7 @@ import CourseClub.register.Types.User;
 @PermitAll
 public class UsersResource {
 
-	UserService usersService = new UserService();
+	static UserService usersService = new UserService();
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -35,8 +35,12 @@ public class UsersResource {
 		if (!users.isEmpty()) {
 			return users;
 		} else {
-			throw new NoContentException("No users found."); // TODO FIX THIS
+			throw new NoContentException("No users found."); // TODO FIX THIS (NoContentexception ei oo toteutettu)
 		}
+	}
+
+	public static UserService getUserService() {
+		return usersService;
 	}
 
 	@GET

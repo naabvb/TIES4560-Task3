@@ -5,9 +5,11 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.annotation.Priority;
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ResourceInfo;
@@ -17,43 +19,31 @@ import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.internal.util.Base64;
 
+import CourseClub.register.UsersResource;
 import CourseClub.register.Exceptions.ErrorMessage;
 import CourseClub.register.Services.UserService;
 import CourseClub.register.Types.User;
 
 @Provider
+@Priority(Priorities.AUTHENTICATION)
 public class SecurityFilter implements ContainerRequestFilter {
 	private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
 	private static final String AUTHORIZATION_HEADER_PREFIX = "Basic ";
-	private static final String SECURED_URL_PREFIX = "secured";
 
-	private static final ErrorMessage FORBIDDEN_ErrMESSAGE = new ErrorMessage("Access blockedfor all users !!!", 403);
-	private static final ErrorMessage UNAUTHORIZED_ErrMESSAGE = new ErrorMessage("User cannotaccess the resource.",
-			401);
+	private static final ErrorMessage FORBIDDEN_ErrMESSAGE = new ErrorMessage(
+			"You have insufficient right to the resource", 403);
+	private static final ErrorMessage UNAUTHORIZED_ErrMESSAGE = new ErrorMessage("Authorization required", 401);
 	@Context
 	private ResourceInfo resourceInfo;
 
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		UserService UserService = new UserService();
+		UserService UserService = UsersResource.getUserService();
 		User user = null;
 
 		Method resMethod = resourceInfo.getResourceMethod();
-		Class<?> resClass = resourceInfo.getResourceClass();
-
-		if (resMethod.isAnnotationPresent(PermitAll.class))
-			return;
-		if (resMethod.isAnnotationPresent(DenyAll.class)) {
-			Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
-			requestContext.abortWith(response);
-		}
-
-		if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
-			if (rolesMatched(user, resMethod.getAnnotation(RolesAllowed.class)))
-				return;
-			Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE).build();
-			requestContext.abortWith(response);
-		}
+		Class<?> resClass = resourceInfo.getResourceClass(); // TODO Käytännössä nyt tarkistetaan vain metodien, mutta
+																// toisaalta varmaan tarvitaan vaan metodeilla???
 
 		List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
 		if (authHeader != null && authHeader.size() > 0) {
@@ -69,22 +59,33 @@ public class SecurityFilter implements ContainerRequestFilter {
 				requestContext.setSecurityContext(new MySecurityContext(user, scheme));
 			}
 
-			if (requestContext.getUriInfo().getPath().contains(SECURED_URL_PREFIX)
-					|| (requestContext.getMethod().equals("DELETE"))) {
-				if (user != null)
-					return;
+			if (resMethod.isAnnotationPresent(PermitAll.class))
+				return;
+			if (resMethod.isAnnotationPresent(DenyAll.class)) {
+				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
+				requestContext.abortWith(response);
+			}
 
-				ErrorMessage errorMessage = new ErrorMessage("User cannot access the resource.", 401);
-				Response unauthorizedStatus = Response.status(Response.Status.UNAUTHORIZED).entity(errorMessage)
+			if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
+				if (rolesMatched(user, resMethod.getAnnotation(RolesAllowed.class)))
+					return;
+				Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE)
 						.build();
-				requestContext.abortWith(unauthorizedStatus);
+				requestContext.abortWith(response);
 			}
 		}
-
+		Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE).build();
+		requestContext.abortWith(response);
 	}
 
 	private boolean rolesMatched(User user, RolesAllowed annotation) {
-		System.out.println(annotation);
+		List<String> roles = user.getRole();
+		for (int i = 0; i < roles.size(); i++) {
+			if (annotation.toString().contains(roles.get(i))) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 

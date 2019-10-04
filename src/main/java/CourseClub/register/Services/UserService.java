@@ -3,9 +3,12 @@ package CourseClub.register.Services;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import CourseClub.register.Exceptions.BadRequestException;
 import CourseClub.register.Types.User;
 
+@Singleton
 public class UserService {
 
 	private List<User> users;
@@ -32,12 +35,20 @@ public class UserService {
 	}
 
 	public boolean userCredentialExists(String username, String password) {
-
+		for (int i = 0; i < users.size(); i++) {
+			if (users.get(i).getLogin().equals(username) && users.get(i).getPassword().equals(password)) {
+				return true;
+			}
+		}
 		return false;
 	}
 
 	public User getUser(String username) {
-		// TODO Auto-generated method stub
+		for (int i = 0; i < users.size(); i++) {
+			if (users.get(i).getLogin().equals(username)) {
+				return users.get(i);
+			}
+		}
 		return null;
 	}
 
