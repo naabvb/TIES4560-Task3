@@ -81,6 +81,12 @@ public class SecurityFilter implements ContainerRequestFilter {
 				}
 				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
 				requestContext.abortWith(response);
+			} else if (resClass.isAnnotationPresent(RolesAllowed.class)) {
+				if (rolesMatched(user, resClass.getAnnotation(RolesAllowed.class))) {
+					return;
+				}
+				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
+				requestContext.abortWith(response);
 			}
 		}
 		Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE).build();
