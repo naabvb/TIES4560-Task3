@@ -1,7 +1,6 @@
 package CourseClub.register.Authentication;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -32,19 +31,17 @@ public class SecurityFilter implements ContainerRequestFilter {
 	private static final String AUTHORIZATION_HEADER_PREFIX = "Basic ";
 
 	private static final ErrorMessage FORBIDDEN_ErrMESSAGE = new ErrorMessage(
-			"You have insufficient right to the resource", 403);
+			"You have insufficient rights to the resource", 403);
 	private static final ErrorMessage UNAUTHORIZED_ErrMESSAGE = new ErrorMessage("Authorization required", 401);
 	@Context
 	private ResourceInfo resourceInfo;
 
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		UserService UserService = UsersResource.getUserService();
-		User user = null;
-
+		// Returning without calling an abort function first means that authorization was successful.
+		UserService userService = UsersResource.getUserService();
 		Method resMethod = resourceInfo.getResourceMethod();
-		Class<?> resClass = resourceInfo.getResourceClass(); // TODO Käytännössä nyt tarkistetaan vain metodien, mutta
-																// toisaalta varmaan tarvitaan vaan metodeilla???
+		Class<?> resClass = resourceInfo.getResourceClass();
 		
 		List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
 		if (authHeader != null && authHeader.size() > 0) {
@@ -54,54 +51,61 @@ public class SecurityFilter implements ContainerRequestFilter {
 			StringTokenizer tokenizer = new StringTokenizer(decodedString, ":");
 			String username = tokenizer.nextToken();
 			String password = tokenizer.nextToken();
-			if (UserService.userCredentialExists(username, password)) {
-				user = UserService.getUser(username);
-				String scheme = requestContext.getUriInfo().getRequestUri().getScheme();
-				requestContext.setSecurityContext(new MySecurityContext(user, scheme));
+			if (!userService.userCredentialExists(username, password)) {
+				abortWithUnauthorized(requestContext);
+				return;
 			}
+			User user = userService.getUser(username);
+			String scheme = requestContext.getUriInfo().getRequestUri().getScheme();
+			requestContext.setSecurityContext(new MySecurityContext(user, scheme));
 			
-			// TODO: Pitäisikö tämän olla jo riittävä ehto yksinään, ilman authHeaderia?
-			// if (resMethod.isAnnotationPresent(PermitAll.class)) {
 			if (resClass.isAnnotationPresent(PermitAll.class)
 					|| resMethod.isAnnotationPresent(PermitAll.class)) {
 				return;
 			}
-				
-			// TODO: Jos kukaan ei saa käyttää resurssia, tarvitaanko tässäkään authHeaderia ja tunnuksia?
-			// if (resMethod.isAnnotationPresent(DenyAll.class)) {
+			
 			if (resClass.isAnnotationPresent(DenyAll.class)
-					|| resMethod.isAnnotationPresent(PermitAll.class)) {
-				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
-				requestContext.abortWith(response);
+					|| resMethod.isAnnotationPresent(DenyAll.class)) {
+				abortWithForbidden(requestContext);
+				return;
 			}
 
 			if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
 				if (rolesMatched(user, resMethod.getAnnotation(RolesAllowed.class))) {
 					return;
 				}
-				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
-				requestContext.abortWith(response);
+				abortWithForbidden(requestContext);
+				return;
 			} else if (resClass.isAnnotationPresent(RolesAllowed.class)) {
 				if (rolesMatched(user, resClass.getAnnotation(RolesAllowed.class))) {
 					return;
 				}
-				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
-				requestContext.abortWith(response);
+				abortWithForbidden(requestContext);
+				return;
 			}
 		}
-		Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE).build();
-		requestContext.abortWith(response);
+		abortWithUnauthorized(requestContext);
+		return;
 	}
 
 	private boolean rolesMatched(User user, RolesAllowed annotation) {
 		List<String> roles = user.getRole();
-		for (int i = 0; i < roles.size(); i++) {
-			if (annotation.toString().contains(roles.get(i))) {
+		String annotationStr = annotation.toString();
+		for (String role : roles) {
+			if (annotationStr.contains(role)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
-
+	
+	private void abortWithForbidden(ContainerRequestContext requestContext) {
+		Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
+		requestContext.abortWith(response);
+	}
+	
+	private void abortWithUnauthorized(ContainerRequestContext requestContext) {
+		Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE).build();
+		requestContext.abortWith(response);
+	}
 }
