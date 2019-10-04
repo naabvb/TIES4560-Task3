@@ -69,8 +69,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 			if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
 				if (rolesMatched(user, resMethod.getAnnotation(RolesAllowed.class)))
 					return;
-				Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE)
-						.build();
+				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
 				requestContext.abortWith(response);
 			}
 		}
