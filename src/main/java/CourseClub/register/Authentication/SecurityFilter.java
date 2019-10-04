@@ -42,6 +42,9 @@ public class SecurityFilter implements ContainerRequestFilter {
 		UserService userService = UsersResource.getUserService();
 		Method resMethod = resourceInfo.getResourceMethod();
 		Class<?> resClass = resourceInfo.getResourceClass();
+		User user = null;
+		
+		// TODO: Katso oikea dataflow Discordista.
 		
 		List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
 		if (authHeader != null && authHeader.size() > 0) {
@@ -51,14 +54,13 @@ public class SecurityFilter implements ContainerRequestFilter {
 			StringTokenizer tokenizer = new StringTokenizer(decodedString, ":");
 			String username = tokenizer.nextToken();
 			String password = tokenizer.nextToken();
-			if (!userService.userCredentialExists(username, password)) {
-				abortWithUnauthorized(requestContext);
-				return;
+			if (userService.userCredentialExists(username, password)) {
+				user = userService.getUser(username);
+				String scheme = requestContext.getUriInfo().getRequestUri().getScheme();
+				requestContext.setSecurityContext(new MySecurityContext(user, scheme));
 			}
-			User user = userService.getUser(username);
-			String scheme = requestContext.getUriInfo().getRequestUri().getScheme();
-			requestContext.setSecurityContext(new MySecurityContext(user, scheme));
-			
+
+			// TODO: Toimiiko nyt? Tuntuu, että setSecurityContext tarvitaan joka tapauksessa jos halutaan sallia pääsy.
 			if (resClass.isAnnotationPresent(PermitAll.class)
 					|| resMethod.isAnnotationPresent(PermitAll.class)) {
 				return;
@@ -69,6 +71,12 @@ public class SecurityFilter implements ContainerRequestFilter {
 				abortWithForbidden(requestContext);
 				return;
 			}
+			
+			if (user == null) {
+				abortWithUnauthorized(requestContext);
+				return;
+			}
+
 
 			if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
 				if (rolesMatched(user, resMethod.getAnnotation(RolesAllowed.class))) {
