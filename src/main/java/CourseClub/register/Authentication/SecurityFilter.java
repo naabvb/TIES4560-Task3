@@ -1,6 +1,7 @@
 package CourseClub.register.Authentication;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -44,7 +45,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 		Method resMethod = resourceInfo.getResourceMethod();
 		Class<?> resClass = resourceInfo.getResourceClass(); // TODO Käytännössä nyt tarkistetaan vain metodien, mutta
 																// toisaalta varmaan tarvitaan vaan metodeilla???
-
+		
 		List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
 		if (authHeader != null && authHeader.size() > 0) {
 			String authToken = authHeader.get(0);
@@ -58,17 +59,26 @@ public class SecurityFilter implements ContainerRequestFilter {
 				String scheme = requestContext.getUriInfo().getRequestUri().getScheme();
 				requestContext.setSecurityContext(new MySecurityContext(user, scheme));
 			}
-
-			if (resMethod.isAnnotationPresent(PermitAll.class))
+			
+			// TODO: Pitäisikö tämän olla jo riittävä ehto yksinään, ilman authHeaderia?
+			// if (resMethod.isAnnotationPresent(PermitAll.class)) {
+			if (resClass.isAnnotationPresent(PermitAll.class)
+					|| resMethod.isAnnotationPresent(PermitAll.class)) {
 				return;
-			if (resMethod.isAnnotationPresent(DenyAll.class)) {
+			}
+				
+			// TODO: Jos kukaan ei saa käyttää resurssia, tarvitaanko tässäkään authHeaderia ja tunnuksia?
+			// if (resMethod.isAnnotationPresent(DenyAll.class)) {
+			if (resClass.isAnnotationPresent(DenyAll.class)
+					|| resMethod.isAnnotationPresent(PermitAll.class)) {
 				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
 				requestContext.abortWith(response);
 			}
 
 			if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
-				if (rolesMatched(user, resMethod.getAnnotation(RolesAllowed.class)))
+				if (areRolesMatched(user, resMethod.getAnnotation(RolesAllowed.class))) {
 					return;
+				}
 				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
 				requestContext.abortWith(response);
 			}
@@ -77,7 +87,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 		requestContext.abortWith(response);
 	}
 
-	private boolean rolesMatched(User user, RolesAllowed annotation) {
+	private boolean areRolesMatched(User user, RolesAllowed annotation) {
 		List<String> roles = user.getRole();
 		for (int i = 0; i < roles.size(); i++) {
 			if (annotation.toString().contains(roles.get(i))) {
