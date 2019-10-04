@@ -76,7 +76,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 			}
 
 			if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
-				if (areRolesMatched(user, resMethod.getAnnotation(RolesAllowed.class))) {
+				if (rolesMatched(user, resMethod.getAnnotation(RolesAllowed.class))) {
 					return;
 				}
 				Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
@@ -87,7 +87,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 		requestContext.abortWith(response);
 	}
 
-	private boolean areRolesMatched(User user, RolesAllowed annotation) {
+	private boolean rolesMatched(User user, RolesAllowed annotation) {
 		List<String> roles = user.getRole();
 		for (int i = 0; i < roles.size(); i++) {
 			if (annotation.toString().contains(roles.get(i))) {
