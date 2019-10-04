@@ -81,8 +81,10 @@ public class User implements Principal {
 	}
 
 	public boolean hasRequiredAttributes() {
-		// TODO PLEASE DOERINO THE COPYPASTERINO
-		return true;
+		return (this.getFirstName() != null
+				&& this.getLastName() != null
+				&& this.getLogin() != null
+				&& this.getPassword() != null);
 	}
 
 }
