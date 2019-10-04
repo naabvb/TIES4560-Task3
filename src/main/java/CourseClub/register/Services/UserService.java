@@ -32,7 +32,7 @@ public class UserService {
 	}
 
 	public boolean userCredentialExists(String username, String password) {
-		// TODO Auto-generated method stub
+
 		return false;
 	}
 
@@ -44,6 +44,7 @@ public class UserService {
 	public User createUser(User user) {
 		if (user.hasRequiredAttributes()) {
 			user.setId(nextId);
+			user.addRole("admin");
 			nextId++;
 			users.add(user);
 			return user;

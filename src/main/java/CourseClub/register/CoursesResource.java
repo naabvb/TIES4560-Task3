@@ -38,6 +38,7 @@ public class CoursesResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed("admin")
 	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher)
 			throws NoContentException {
 		List<Course> courses = new ArrayList<>();
@@ -68,7 +69,6 @@ public class CoursesResource {
 	@GET
 	@Path("/{courseId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@RolesAllowed("admin")
 	public Course getCourse(@PathParam("courseId") long id) {
 		Course course = coursesService.getCourse(id);
 		if (course == null) {
@@ -80,6 +80,7 @@ public class CoursesResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed("admin")
 	public Response addCourse(Course course, @Context UriInfo uriInfo) {
 		Course newCourse = coursesService.addCourse(course);
 		String uri = uriInfo.getBaseUriBuilder().path(CoursesResource.class).path(Long.toString(course.getId())).build()

@@ -11,7 +11,7 @@ public class User implements Principal {
 	private String login;
 	private String password;
 
-	private List<String> role;
+	private List<String> role = new ArrayList<String>();
 
 	public long getId() {
 		return id;
@@ -30,7 +30,6 @@ public class User implements Principal {
 		this.lastName = lastName;
 		this.login = login;
 		this.password = password;
-		this.role = new ArrayList<String>();
 	}
 
 	public String getFirstName() {
@@ -71,6 +70,10 @@ public class User implements Principal {
 
 	public void setRole(List<String> role) {
 		this.role = role;
+	}
+
+	public void addRole(String role) {
+		this.role.add(role);
 	}
 
 	public String getName() {
