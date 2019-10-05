@@ -7,6 +7,7 @@ import CourseClub.register.Types.Activity;
 import java.net.URI;
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -28,11 +29,13 @@ public class ActivitiesResource {
 	private ActivitiesService activitiesService = new ActivitiesService();
 
 	@GET
+	@PermitAll
 	public List<Activity> getActivities(@PathParam("clubId") long clubId) {
 		return activitiesService.getActivitiesFromClub(clubId);
 	}
 
 	@POST
+	@PermitAll
 	public Response addActivity(@PathParam("clubId") long clubId, Activity activity, @Context UriInfo uriInfo) {
 		Activity newActivity = activitiesService.addActivity(activity, clubId);
 		String uri = uriInfo.getBaseUriBuilder().path(ClubsResource.class).path(Long.toString(clubId))
@@ -49,6 +52,7 @@ public class ActivitiesResource {
 
 	@GET
 	@Path("/{activityId}")
+	@PermitAll
 	public Activity getActivity(@PathParam("clubId") long clubId, @PathParam("activityId") long activityId) {
 		Activity activity =  activitiesService.getActivity(clubId, activityId);
 		if (activity == null) {
@@ -59,6 +63,7 @@ public class ActivitiesResource {
 
 	@PUT
 	@Path("/{activityId}")
+	@PermitAll
 	public Activity updateActivity(@PathParam("activityId") long activityId, Activity activity) {
 		activity.setId(activityId);
 		return activitiesService.updateActivity(activity);
@@ -66,6 +71,7 @@ public class ActivitiesResource {
 
 	@DELETE
 	@Path("/{activityId}")
+	@PermitAll
 	public Response deleteActivity(@PathParam("activityId") long activityId) {
 		return activitiesService.removeActivity(activityId);
 	}
