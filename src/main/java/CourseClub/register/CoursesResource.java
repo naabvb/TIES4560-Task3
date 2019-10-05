@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -28,7 +27,6 @@ import CourseClub.register.Types.Course;
 
 @Singleton
 @Path("/courses")
-@PermitAll
 public class CoursesResource {
 
 	CoursesService coursesService = new CoursesService();

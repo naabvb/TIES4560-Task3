@@ -80,9 +80,12 @@ public class User implements Principal {
 		return this.firstName + " " + this.lastName;
 	}
 
+	// TODO: Pitääkö role-attribuuttikin tarkistaa tässä?
 	public boolean hasRequiredAttributes() {
-		// TODO PLEASE DOERINO THE COPYPASTERINO
-		return true;
+		return (this.getFirstName() != null
+				&& this.getLastName() != null
+				&& this.getLogin() != null
+				&& this.getPassword() != null);
 	}
 
 }

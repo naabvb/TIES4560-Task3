@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -23,13 +24,13 @@ import CourseClub.register.Types.User;
 
 @Singleton
 @Path("/users")
-@PermitAll
 public class UsersResource {
 
 	static UserService usersService = new UserService();
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@PermitAll
 	public List<User> getUser() throws NoContentException {
 		List<User> users = usersService.getUsers();
 		if (!users.isEmpty()) {
@@ -46,6 +47,7 @@ public class UsersResource {
 	@GET
 	@Path("/{userId}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed("admin")
 	public User getUser(@PathParam("userId") long id) {
 		User user = usersService.getUserById(id);
 		if (user == null) {
@@ -57,6 +59,7 @@ public class UsersResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@PermitAll
 	public Response createUser(User user, @Context UriInfo uriInfo) {
 		User newUser = usersService.createUser(user);
 
