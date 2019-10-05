@@ -38,14 +38,23 @@ public class SecurityFilter implements ContainerRequestFilter {
 
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
-		// Returning without calling an abort function first means that authorization was successful.
+		// Returning without calling an abort function first means that authorization
+		// was successful.
 		UserService userService = UsersResource.getUserService();
 		Method resMethod = resourceInfo.getResourceMethod();
-		Class<?> resClass = resourceInfo.getResourceClass();
 		User user = null;
-		
+
+		if (resMethod.isAnnotationPresent(PermitAll.class)) {
+			return;
+		}
+
+		if (resMethod.isAnnotationPresent(DenyAll.class)) {
+			abortWithForbidden(requestContext);
+			return;
+		}
+
 		// TODO: Katso oikea dataflow Discordista.
-		
+
 		List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
 		if (authHeader != null && authHeader.size() > 0) {
 			String authToken = authHeader.get(0);
@@ -60,23 +69,10 @@ public class SecurityFilter implements ContainerRequestFilter {
 				requestContext.setSecurityContext(new MySecurityContext(user, scheme));
 			}
 
-			// TODO: Toimiiko nyt? Tuntuu, että setSecurityContext tarvitaan joka tapauksessa jos halutaan sallia pääsy.
-			if (resClass.isAnnotationPresent(PermitAll.class)
-					|| resMethod.isAnnotationPresent(PermitAll.class)) {
-				return;
-			}
-			
-			if (resClass.isAnnotationPresent(DenyAll.class)
-					|| resMethod.isAnnotationPresent(DenyAll.class)) {
-				abortWithForbidden(requestContext);
-				return;
-			}
-			
 			if (user == null) {
 				abortWithUnauthorized(requestContext);
 				return;
 			}
-
 
 			if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
 				if (rolesMatched(user, resMethod.getAnnotation(RolesAllowed.class))) {
@@ -84,12 +80,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 				}
 				abortWithForbidden(requestContext);
 				return;
-			} else if (resClass.isAnnotationPresent(RolesAllowed.class)) {
-				if (rolesMatched(user, resClass.getAnnotation(RolesAllowed.class))) {
-					return;
-				}
-				abortWithForbidden(requestContext);
-				return;
+
 			}
 		}
 		abortWithUnauthorized(requestContext);
@@ -106,12 +97,12 @@ public class SecurityFilter implements ContainerRequestFilter {
 		}
 		return false;
 	}
-	
+
 	private void abortWithForbidden(ContainerRequestContext requestContext) {
 		Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
 		requestContext.abortWith(response);
 	}
-	
+
 	private void abortWithUnauthorized(ContainerRequestContext requestContext) {
 		Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE).build();
 		requestContext.abortWith(response);
