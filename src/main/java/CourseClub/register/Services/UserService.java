@@ -57,7 +57,9 @@ public class UserService {
 	public User createUser(User user) {
 		if (user.hasRequiredAttributes()) {
 			user.setId(nextId);
-			user.addRole("admin");
+			if (users.size() == 0)
+				user.addRole("admin");
+			user.addRole("user");
 			nextId++;
 			users.add(user);
 			return user;
@@ -82,15 +84,15 @@ public class UserService {
 
 		return -1;
 	}
-	
+
 	public List<String> getNonces() {
 		return nonces;
 	}
-	
+
 	public void addNonce(String nonce) {
 		nonces.add(nonce);
 	}
-	
+
 	public void deleteNonce(String nonce) {
 		nonces.remove(nonce);
 	}
