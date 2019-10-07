@@ -3,6 +3,8 @@ package CourseClub.register;
 import java.net.URI;
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -30,6 +32,7 @@ public class ClubsResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@PermitAll
 	public List<Club> getClubs() throws NoContentException {
 		List<Club> clubs = clubsService.getAllClubs();
 		if (!clubs.isEmpty()) {
@@ -42,6 +45,7 @@ public class ClubsResource {
 	@GET
 	@Path("/{clubId}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@PermitAll
 	public Club getClub(@PathParam("clubId") long id) {
 		Club club = clubsService.getClub(id);
 		if (club == null) {
@@ -53,6 +57,7 @@ public class ClubsResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed({ "user", "admin" })
 	public Response addClub(Club club, @Context UriInfo uriInfo) {
 		Club newClub = clubsService.addClub(club);
 		String uri = uriInfo.getBaseUriBuilder().path(ClubsResource.class).path(Long.toString(club.getId())).build()
@@ -72,6 +77,7 @@ public class ClubsResource {
 	@Path("/{clubId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed({ "user", "admin" })
 	public Club updateClub(@PathParam("clubId") long id, Club club) {
 		club.setId(id);
 		return clubsService.updateClub(club);
@@ -80,6 +86,7 @@ public class ClubsResource {
 	@DELETE
 	@Path("/{clubId}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed("admin")
 	public Response deleteClub(@PathParam("clubId") long id) {
 		return clubsService.removeClub(id);
 	}

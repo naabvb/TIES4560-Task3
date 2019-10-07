@@ -30,7 +30,7 @@ public class UsersResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@PermitAll
+	@RolesAllowed("admin")
 	public List<User> getUser() throws NoContentException {
 		List<User> users = usersService.getUsers();
 		if (!users.isEmpty()) {

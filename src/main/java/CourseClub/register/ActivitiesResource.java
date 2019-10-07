@@ -1,13 +1,10 @@
 package CourseClub.register;
 
-import CourseClub.register.Exceptions.ResourceNotFoundException;
-import CourseClub.register.Services.ActivitiesService;
-import CourseClub.register.Types.Activity;
-
 import java.net.URI;
 import java.util.List;
 
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,6 +17,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import CourseClub.register.Exceptions.ResourceNotFoundException;
+import CourseClub.register.Services.ActivitiesService;
+import CourseClub.register.Types.Activity;
 
 @Path("/activities")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -35,7 +36,7 @@ public class ActivitiesResource {
 	}
 
 	@POST
-	@PermitAll
+	@RolesAllowed({ "user", "admin" })
 	public Response addActivity(@PathParam("clubId") long clubId, Activity activity, @Context UriInfo uriInfo) {
 		Activity newActivity = activitiesService.addActivity(activity, clubId);
 		String uri = uriInfo.getBaseUriBuilder().path(ClubsResource.class).path(Long.toString(clubId))
@@ -54,7 +55,7 @@ public class ActivitiesResource {
 	@Path("/{activityId}")
 	@PermitAll
 	public Activity getActivity(@PathParam("clubId") long clubId, @PathParam("activityId") long activityId) {
-		Activity activity =  activitiesService.getActivity(clubId, activityId);
+		Activity activity = activitiesService.getActivity(clubId, activityId);
 		if (activity == null) {
 			throw new ResourceNotFoundException("Activity with id " + activityId + " on club " + clubId + "not found.");
 		}
@@ -63,7 +64,7 @@ public class ActivitiesResource {
 
 	@PUT
 	@Path("/{activityId}")
-	@PermitAll
+	@RolesAllowed({ "user", "admin" })
 	public Activity updateActivity(@PathParam("activityId") long activityId, Activity activity) {
 		activity.setId(activityId);
 		return activitiesService.updateActivity(activity);
@@ -71,7 +72,7 @@ public class ActivitiesResource {
 
 	@DELETE
 	@Path("/{activityId}")
-	@PermitAll
+	@RolesAllowed("admin")
 	public Response deleteActivity(@PathParam("activityId") long activityId) {
 		return activitiesService.removeActivity(activityId);
 	}
