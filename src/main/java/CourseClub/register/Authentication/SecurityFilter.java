@@ -9,9 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Priority;
 import javax.annotation.security.DenyAll;
@@ -95,13 +92,13 @@ public class SecurityFilter implements ContainerRequestFilter {
 		if (authHeader != null && authHeader.size() > 0) {
 			if (authHeader.get(0).startsWith(AUTHORIZATION_HEADER_PREFIX_BASIC)) {
 
-				
 				user = basicAuth(authHeader, userService, requestContext);
 
 			} else if (authHeader.get(0).startsWith(AUTHORIZATION_HEADER_PREFIX_DIGEST)) {
 
 				user = digestAuth(authHeader, userService, requestContext);
-				if (user == null) return;
+				if (user == null)
+					return;
 
 			}
 
@@ -122,7 +119,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 		abortWithUnauthorized(requestContext);
 		return;
 	}
-	
+
 	private User basicAuth(List<String> authHeader, UserService userService, ContainerRequestContext requestContext) {
 		User user = null;
 		String authToken = authHeader.get(0);
@@ -138,7 +135,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 		}
 		return user;
 	}
-	
+
 	private User digestAuth(List<String> authHeader, UserService userService, ContainerRequestContext requestContext) {
 		HashMap<String, String> headerValues = parseAuthHeader(authHeader.get(0));
 
@@ -175,31 +172,6 @@ public class SecurityFilter implements ContainerRequestFilter {
 		}
 		abortWithUnauthorized(requestContext);
 		return null;
-	}
-
-	private String md5hex(String s) {
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(s.getBytes());
-			byte[] digest = md.digest();
-			return DatatypeConverter.printHexBinary(digest).toLowerCase();
-		} catch (Exception e) {
-			return "";
-		}
-	}
-
-	private HashMap<String, String> parseAuthHeader(String header) {
-		String headerContent = header.replaceFirst(AUTHORIZATION_HEADER_PREFIX_DIGEST, "");
-		HashMap<String, String> headerValues = new HashMap<String, String>();
-		String[] valueArray = headerContent.split(",");
-		for (String keyVal : valueArray) {
-			if (keyVal.contains("=")) {
-				String key = keyVal.substring(0, keyVal.indexOf("="));
-				String value = keyVal.substring(keyVal.indexOf("=") + 1);
-				headerValues.put(key.trim(), value.replaceAll("\"", "").trim());
-			}
-		}
-		return headerValues;
 	}
 
 	private String md5hex(String s) {
