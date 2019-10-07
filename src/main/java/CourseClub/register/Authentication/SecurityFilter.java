@@ -76,8 +76,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		// Returning without calling an abort function first means that
-		// authorization
-		// was successful.
+		// authorization was successful.
 		UserService userService = UsersResource.getUserService();
 		nonce = calculateNonce();
 		userService.addNonce(nonce);
@@ -92,8 +91,6 @@ public class SecurityFilter implements ContainerRequestFilter {
 			abortWithForbidden(requestContext);
 			return;
 		}
-
-		// TODO: Katso oikea dataflow Discordista.
 
 		List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
 		if (authHeader != null && authHeader.size() > 0) {
@@ -118,9 +115,10 @@ public class SecurityFilter implements ContainerRequestFilter {
 
 				if (!userService.getNonces().contains(userNonce)) {
 					abortWithUnauthorizedStale(requestContext);
-					abortWithUnauthorized(requestContext);
 					return;
 				}
+
+				userService.deleteNonce(userNonce);
 
 				String method = requestContext.getMethod();
 
@@ -129,7 +127,6 @@ public class SecurityFilter implements ContainerRequestFilter {
 				String username = headerValues.get("username");
 				user = userService.getUser(username);
 				if (user == null) {
-					userService.deleteNonce(userNonce);
 					abortWithUnauthorized(requestContext);
 					return;
 				}
@@ -143,7 +140,6 @@ public class SecurityFilter implements ContainerRequestFilter {
 				if (serverResponse.equals(clientResponse)) {
 					String scheme = requestContext.getUriInfo().getRequestUri().getScheme();
 					requestContext.setSecurityContext(new MySecurityContext(user, scheme));
-					userService.deleteNonce(userNonce);
 				}
 
 			}
