@@ -36,7 +36,7 @@ public class UsersResource {
 		if (!users.isEmpty()) {
 			return users;
 		} else {
-			throw new NoContentException("No users found."); // TODO FIX THIS (NoContentexception ei oo toteutettu)
+			throw new NoContentException("No users found.");
 		}
 	}
 
