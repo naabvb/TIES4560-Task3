@@ -36,235 +36,202 @@ import CourseClub.register.Types.User;
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class SecurityFilter implements ContainerRequestFilter {
-    private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
-    private static final String AUTHORIZATION_HEADER_PREFIX_BASIC = "Basic ";
-    private static final String AUTHORIZATION_HEADER_PREFIX_DIGEST = "Digest ";
+	private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
+	private static final String AUTHORIZATION_HEADER_PREFIX_BASIC = "Basic ";
+	private static final String AUTHORIZATION_HEADER_PREFIX_DIGEST = "Digest ";
 
-    private static final String authMethod = "auth";
-    private static final String realm = "courseclubregister.com";
+	private static final String realm = "courseclubregister.com";
 
-    public String nonce;
+	public String nonce;
 
-    private static final ErrorMessage FORBIDDEN_ErrMESSAGE = new ErrorMessage(
-            "You have insufficient rights to the resource", 403);
-    private static final ErrorMessage UNAUTHORIZED_ErrMESSAGE = new ErrorMessage(
-            "Authorization required", 401);
-    @Context
-    private ResourceInfo resourceInfo;
+	private static final ErrorMessage FORBIDDEN_ErrMESSAGE = new ErrorMessage(
+			"You have insufficient rights to the resource", 403);
+	private static final ErrorMessage UNAUTHORIZED_ErrMESSAGE = new ErrorMessage("Authorization required", 401);
+	@Context
+	private ResourceInfo resourceInfo;
 
-    /**
-     * Calculates nonce
-     * @return
-     */
-    public String calculateNonce() {
-        Date d = new Date();
-        SimpleDateFormat f = new SimpleDateFormat("yyyy:MM:dd:hh:mm:ss");
-        String fmtDate = f.format(d);
-        Random rand = new Random(100000);
-        Integer randomInt = rand.nextInt();
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update((fmtDate + randomInt.toString()).getBytes());
-            byte[] digest = md.digest();
-            String nonceHash = DatatypeConverter.printHexBinary(digest)
-                    .toUpperCase();
-            return nonceHash;
-        } catch (Exception e) {
-            return "";
-        }
-    }
+	/**
+	 * Calculates nonce
+	 * 
+	 * @return
+	 */
+	public String calculateNonce() {
+		Date d = new Date();
+		SimpleDateFormat f = new SimpleDateFormat("yyyy:MM:dd:hh:mm:ss");
+		String fmtDate = f.format(d);
+		Random rand = new Random(100000);
+		Integer randomInt = rand.nextInt();
+		return md5hex(fmtDate + randomInt.toString());
+	}
 
+	private String getOpaque(String domain, String nonce) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update((domain + nonce).getBytes());
+			byte[] digest = md.digest();
+			String opaqueHash = DatatypeConverter.printHexBinary(digest).toUpperCase();
+			return opaqueHash;
+		} catch (Exception e) {
+			return "";
+		}
+	}
 
-    private String getOpaque(String domain, String nonce) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update((domain + nonce).getBytes());
-            byte[] digest = md.digest();
-            String opaqueHash = DatatypeConverter.printHexBinary(digest)
-                    .toUpperCase();
-            return opaqueHash;
-        } catch (Exception e) {
-            return "";
-        }
-    }
+	@Override
+	public void filter(ContainerRequestContext requestContext) throws IOException {
+		// Returning without calling an abort function first means that
+		// authorization
+		// was successful.
+		UserService userService = UsersResource.getUserService();
+		nonce = calculateNonce();
+		userService.addNonce(nonce);
+		Method resMethod = resourceInfo.getResourceMethod();
+		User user = null;
 
+		if (resMethod.isAnnotationPresent(PermitAll.class)) {
+			return;
+		}
 
-    @Override
-    public void filter(ContainerRequestContext requestContext)
-            throws IOException {
-        // Returning without calling an abort function first means that
-        // authorization
-        // was successful.
-        UserService userService = UsersResource.getUserService();
-        nonce = calculateNonce();
-        userService.addNonce(nonce);
-        Method resMethod = resourceInfo.getResourceMethod();
-        User user = null;
+		if (resMethod.isAnnotationPresent(DenyAll.class)) {
+			abortWithForbidden(requestContext);
+			return;
+		}
 
-        if (resMethod.isAnnotationPresent(PermitAll.class)) {
-            return;
-        }
+		// TODO: Katso oikea dataflow Discordista.
 
-        if (resMethod.isAnnotationPresent(DenyAll.class)) {
-            abortWithForbidden(requestContext);
-            return;
-        }
+		List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
+		if (authHeader != null && authHeader.size() > 0) {
+			if (authHeader.get(0).startsWith(AUTHORIZATION_HEADER_PREFIX_BASIC)) {
+				String authToken = authHeader.get(0);
+				authToken = authToken.replaceFirst(AUTHORIZATION_HEADER_PREFIX_BASIC, "");
+				String decodedString = Base64.decodeAsString(authToken);
+				StringTokenizer tokenizer = new StringTokenizer(decodedString, ":");
+				String username = tokenizer.nextToken();
+				String password = tokenizer.nextToken();
+				if (userService.userCredentialExists(username, password)) {
+					user = userService.getUser(username);
+					String scheme = requestContext.getUriInfo().getRequestUri().getScheme();
+					requestContext.setSecurityContext(new MySecurityContext(user, scheme));
+				}
 
-        // TODO: Katso oikea dataflow Discordista.
+			} else if (authHeader.get(0).startsWith(AUTHORIZATION_HEADER_PREFIX_DIGEST)) {
 
-        List<String> authHeader = requestContext.getHeaders()
-                .get(AUTHORIZATION_HEADER_KEY);
-        if (authHeader != null && authHeader.size() > 0) {
-            if (authHeader.get(0)
-                    .startsWith(AUTHORIZATION_HEADER_PREFIX_BASIC)) {
-                String authToken = authHeader.get(0);
-                authToken = authToken
-                        .replaceFirst(AUTHORIZATION_HEADER_PREFIX_BASIC, "");
-                String decodedString = Base64.decodeAsString(authToken);
-                StringTokenizer tokenizer = new StringTokenizer(decodedString,
-                        ":");
-                String username = tokenizer.nextToken();
-                String password = tokenizer.nextToken();
-                if (userService.userCredentialExists(username, password)) {
-                    user = userService.getUser(username);
-                    String scheme = requestContext.getUriInfo().getRequestUri()
-                            .getScheme();
-                    requestContext.setSecurityContext(
-                            new MySecurityContext(user, scheme));
-                }
+				HashMap<String, String> headerValues = parseAuthHeader(authHeader.get(0));
 
-            } else if (authHeader.get(0)
-                    .startsWith(AUTHORIZATION_HEADER_PREFIX_DIGEST)) {
-                // asd
-            	
-            	
-            	HashMap<String, String> headerValues = parseAuthHeader(authHeader.get(0));
+				String userNonce = headerValues.get("nonce");
 
-            	String userNonce = headerValues.get("nonce");
-            	
-            	if (!userService.getNonces().contains(userNonce)) {
-            		abortWithUnauthorized(requestContext);
-            		return;
-            	}
-            	
-            	String method = requestContext.getMethod();
+				if (!userService.getNonces().contains(userNonce)) {
+					abortWithUnauthorized(requestContext);
+					return;
+				}
 
-                String reqURI = headerValues.get("uri");
-                
-                List<User> users = userService.getUsers();
-                
-                for (User u : users) {
-                	String ha1 = "";
-                    
-                    try {
-                        MessageDigest md = MessageDigest.getInstance("MD5");
-                        md.update((u.getLogin() + ":" + realm + ":" + u.getPassword()).getBytes());
-                        byte[] digest = md.digest();
-                        ha1 = DatatypeConverter.printHexBinary(digest);
-                    } catch (Exception e) {
-                    }
-                    
-                    String ha2 = "";
-                    
-                    try {
-                        MessageDigest md = MessageDigest.getInstance("MD5");
-                        md.update((method + ":" + reqURI).getBytes());
-                        byte[] digest = md.digest();
-                        ha2 = DatatypeConverter.printHexBinary(digest);
-                    } catch (Exception e) {
-                    }
-                    
-                    String serverResponse = "";
-                    
-                    try {
-                        MessageDigest md = MessageDigest.getInstance("MD5");
-                        md.update((ha1 + ":" + userNonce + ":" + ha2).getBytes());
-                        byte[] digest = md.digest();
-                        serverResponse = DatatypeConverter.printHexBinary(digest)
-                                .toUpperCase();
-                    } catch (Exception e) {
-                    }
-                    
-                    String clientResponse = headerValues.get("response");
+				String method = requestContext.getMethod();
 
-                    if (serverResponse.equals(clientResponse)) {
-                        user = u;
-                    }
-              
-                }
-            }
+				String reqURI = headerValues.get("uri");
 
-            if (user == null) {
-                abortWithUnauthorized(requestContext);
-                return;
-            }
+				String username = headerValues.get("username");
+				user = userService.getUser(username);
+				if (user == null) {
+					userService.deleteNonce(userNonce);
+					abortWithUnauthorizedStale(requestContext);
+					return;
+				}
 
-            if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
-                if (rolesMatched(user,
-                        resMethod.getAnnotation(RolesAllowed.class))) {
-                    return;
-                }
-                abortWithForbidden(requestContext);
-                return;
+				String ha1 = md5hex(user.getLogin() + ":" + realm + ":" + user.getPassword());
+				String ha2 = md5hex(method + ":" + reqURI);
+				String serverResponse = md5hex(ha1 + ":" + userNonce + ":" + ha2);
 
-            }
-        }
-        abortWithUnauthorized(requestContext);
-        return;
-    }
+				String clientResponse = headerValues.get("response");
 
+				if (serverResponse.equals(clientResponse)) {
+					String scheme = requestContext.getUriInfo().getRequestUri().getScheme();
+					requestContext.setSecurityContext(new MySecurityContext(user, scheme));
+					userService.deleteNonce(userNonce);
+				}
 
-    private HashMap<String, String> parseAuthHeader(String header) {
-        String headerContent = header
-                .replaceFirst(AUTHORIZATION_HEADER_PREFIX_BASIC, "");
-        HashMap<String, String> headerValues = new HashMap<String, String>();
-        String[] valueArray = headerContent.split(",");
-        for (String keyVal : valueArray) {
-        	if (keyVal.contains("=")) {
-        		String key = keyVal.substring(0, keyVal.indexOf("="));
-        		String value = keyVal.substring(keyVal.indexOf("=") + 1);
-        		headerValues.put(key.trim(), value.replaceAll("\"", "").trim());
-        	}
-        }
-        return headerValues;
-    }
+			}
 
-    private boolean rolesMatched(User user, RolesAllowed annotation) {
-        List<String> roles = user.getRole();
-        String annotationStr = annotation.toString();
-        for (String role : roles) {
-            if (annotationStr.contains(role)) {
-                return true;
-            }
-        }
-        return false;
-    }
+			if (user == null) {
+				abortWithUnauthorized(requestContext);
+				return;
+			}
 
+			if (resMethod.isAnnotationPresent(RolesAllowed.class)) {
+				if (rolesMatched(user, resMethod.getAnnotation(RolesAllowed.class))) {
+					return;
+				}
+				abortWithForbidden(requestContext);
+				return;
 
-    private String getAuthenticateHeader() {
-        String header = "";
+			}
+		}
+		abortWithUnauthorized(requestContext);
+		return;
+	}
 
-        header += "Digest realm=\"" + realm + "\",";
-        header += "nonce=\"" + nonce + "\",";
-        header += "opaque=\"" + getOpaque(realm, nonce) + "\"";
+	private String md5hex(String s) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(s.getBytes());
+			byte[] digest = md.digest();
+			return DatatypeConverter.printHexBinary(digest).toLowerCase();
+		} catch (Exception e) {
+			return "";
+		}
+	}
 
-        return header;
-    }
+	private HashMap<String, String> parseAuthHeader(String header) {
+		String headerContent = header.replaceFirst(AUTHORIZATION_HEADER_PREFIX_DIGEST, "");
+		HashMap<String, String> headerValues = new HashMap<String, String>();
+		String[] valueArray = headerContent.split(",");
+		for (String keyVal : valueArray) {
+			if (keyVal.contains("=")) {
+				String key = keyVal.substring(0, keyVal.indexOf("="));
+				String value = keyVal.substring(keyVal.indexOf("=") + 1);
+				headerValues.put(key.trim(), value.replaceAll("\"", "").trim());
+			}
+		}
+		return headerValues;
+	}
 
+	private boolean rolesMatched(User user, RolesAllowed annotation) {
+		List<String> roles = user.getRole();
+		String annotationStr = annotation.toString();
+		for (String role : roles) {
+			if (annotationStr.contains(role)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    private void abortWithForbidden(ContainerRequestContext requestContext) {
-        Response response = Response.status(Response.Status.FORBIDDEN)
-                .entity(FORBIDDEN_ErrMESSAGE).build();
-        requestContext.abortWith(response);
-    }
+	private String getAuthenticateHeader() {
+		String header = "";
 
+		header += "Digest realm=\"" + realm + "\",";
+		header += "nonce=\"" + nonce + "\",";
+		header += "opaque=\"" + getOpaque(realm, nonce) + "\"";
 
-    private void abortWithUnauthorized(ContainerRequestContext requestContext) {
+		return header;
+	}
 
-        Response response = Response.status(Response.Status.UNAUTHORIZED)
-                .entity(UNAUTHORIZED_ErrMESSAGE).header("WWW-Authenticate", getAuthenticateHeader())
-                .build();
+	private void abortWithForbidden(ContainerRequestContext requestContext) {
+		Response response = Response.status(Response.Status.FORBIDDEN).entity(FORBIDDEN_ErrMESSAGE).build();
+		requestContext.abortWith(response);
+	}
 
-        requestContext.abortWith(response);
-    }
+	private void abortWithUnauthorized(ContainerRequestContext requestContext) {
+
+		Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE)
+				.header("WWW-Authenticate", getAuthenticateHeader()).build();
+
+		requestContext.abortWith(response);
+	}
+
+	private void abortWithUnauthorizedStale(ContainerRequestContext requestContext) {
+
+		Response response = Response.status(Response.Status.UNAUTHORIZED).entity(UNAUTHORIZED_ErrMESSAGE)
+				.header("WWW-Authenticate", getAuthenticateHeader()).header("stale", "true").build();
+
+		requestContext.abortWith(response);
+	}
 }
