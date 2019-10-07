@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -43,7 +44,6 @@ public class SecurityFilter implements ContainerRequestFilter {
     private static final String realm = "courseclubregister.com";
 
     public String nonce;
-    public ScheduledExecutorService nonceRefreshExecutor;
 
     private static final ErrorMessage FORBIDDEN_ErrMESSAGE = new ErrorMessage(
             "You have insufficient rights to the resource", 403);
@@ -51,23 +51,6 @@ public class SecurityFilter implements ContainerRequestFilter {
             "Authorization required", 401);
     @Context
     private ResourceInfo resourceInfo;
-
-
-    public SecurityFilter() throws Exception {
-
-        nonce = calculateNonce();
-
-        nonceRefreshExecutor = Executors.newScheduledThreadPool(1);
-
-        nonceRefreshExecutor.scheduleAtFixedRate(new Runnable() {
-
-            public void run() {
-                nonce = calculateNonce();
-            }
-        }, 1, 1, TimeUnit.MINUTES);
-
-    }
-
 
     /**
      * Calculates nonce
@@ -113,6 +96,8 @@ public class SecurityFilter implements ContainerRequestFilter {
         // authorization
         // was successful.
         UserService userService = UsersResource.getUserService();
+        nonce = calculateNonce();
+        userService.addNonce(nonce);
         Method resMethod = resourceInfo.getResourceMethod();
         User user = null;
 
@@ -150,8 +135,63 @@ public class SecurityFilter implements ContainerRequestFilter {
 
             } else if (authHeader.get(0)
                     .startsWith(AUTHORIZATION_HEADER_PREFIX_DIGEST)) {
-                abortWithUnauthorized(requestContext);
-                return;
+                // asd
+            	
+            	
+            	HashMap<String, String> headerValues = parseAuthHeader(authHeader.get(0));
+
+            	String userNonce = headerValues.get("nonce");
+            	
+            	if (!userService.getNonces().contains(userNonce)) {
+            		abortWithUnauthorized(requestContext);
+            		return;
+            	}
+            	
+            	String method = requestContext.getMethod();
+
+                String reqURI = headerValues.get("uri");
+                
+                List<User> users = userService.getUsers();
+                
+                for (User u : users) {
+                	String ha1 = "";
+                    
+                    try {
+                        MessageDigest md = MessageDigest.getInstance("MD5");
+                        md.update((u.getLogin() + ":" + realm + ":" + u.getPassword()).getBytes());
+                        byte[] digest = md.digest();
+                        ha1 = DatatypeConverter.printHexBinary(digest);
+                    } catch (Exception e) {
+                    }
+                    
+                    String ha2 = "";
+                    
+                    try {
+                        MessageDigest md = MessageDigest.getInstance("MD5");
+                        md.update((method + ":" + reqURI).getBytes());
+                        byte[] digest = md.digest();
+                        ha2 = DatatypeConverter.printHexBinary(digest);
+                    } catch (Exception e) {
+                    }
+                    
+                    String serverResponse = "";
+                    
+                    try {
+                        MessageDigest md = MessageDigest.getInstance("MD5");
+                        md.update((ha1 + ":" + userNonce + ":" + ha2).getBytes());
+                        byte[] digest = md.digest();
+                        serverResponse = DatatypeConverter.printHexBinary(digest)
+                                .toUpperCase();
+                    } catch (Exception e) {
+                    }
+                    
+                    String clientResponse = headerValues.get("response");
+
+                    if (serverResponse.equals(clientResponse)) {
+                        user = u;
+                    }
+              
+                }
             }
 
             if (user == null) {
@@ -173,10 +213,20 @@ public class SecurityFilter implements ContainerRequestFilter {
         return;
     }
 
+
     private HashMap<String, String> parseAuthHeader(String header) {
         String headerContent = header
                 .replaceFirst(AUTHORIZATION_HEADER_PREFIX_BASIC, "");
-        
+        HashMap<String, String> headerValues = new HashMap<String, String>();
+        String[] valueArray = headerContent.split(",");
+        for (String keyVal : valueArray) {
+        	if (keyVal.contains("=")) {
+        		String key = keyVal.substring(0, keyVal.indexOf("="));
+        		String value = keyVal.substring(keyVal.indexOf("=") + 1);
+        		headerValues.put(key.trim(), value.replaceAll("\"", "").trim());
+        	}
+        }
+        return headerValues;
     }
 
     private boolean rolesMatched(User user, RolesAllowed annotation) {
@@ -195,9 +245,6 @@ public class SecurityFilter implements ContainerRequestFilter {
         String header = "";
 
         header += "Digest realm=\"" + realm + "\",";
-        if (!authMethod.isEmpty()) {
-            header += "qop=" + authMethod + ",";
-        }
         header += "nonce=\"" + nonce + "\",";
         header += "opaque=\"" + getOpaque(realm, nonce) + "\"";
 
