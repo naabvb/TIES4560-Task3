@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -36,7 +37,7 @@ public class CoursesResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@RolesAllowed("admin")
+	@PermitAll
 	public List<Course> getCourses(@QueryParam("size") int size, @QueryParam("teacher") String teacher)
 			throws NoContentException {
 		List<Course> courses = new ArrayList<>();
@@ -66,6 +67,7 @@ public class CoursesResource {
 
 	@GET
 	@Path("/{courseId}")
+	@PermitAll
 	@Produces(MediaType.APPLICATION_JSON)
 	public Course getCourse(@PathParam("courseId") long id) {
 		Course course = coursesService.getCourse(id);
@@ -78,7 +80,7 @@ public class CoursesResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@RolesAllowed("admin")
+	@RolesAllowed({ "user", "admin" })
 	public Response addCourse(Course course, @Context UriInfo uriInfo) {
 		Course newCourse = coursesService.addCourse(course);
 		String uri = uriInfo.getBaseUriBuilder().path(CoursesResource.class).path(Long.toString(course.getId())).build()
@@ -103,6 +105,7 @@ public class CoursesResource {
 	@Path("/{courseId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed({ "user", "admin" })
 	public Course updateCourse(@PathParam("courseId") long id, Course course) {
 		course.setId(id);
 		return coursesService.updateCourse(course);
@@ -111,6 +114,7 @@ public class CoursesResource {
 	@DELETE
 	@Path("/{courseId}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@RolesAllowed("admin")
 	public Response deleteCourse(@PathParam("courseId") long id) {
 		return coursesService.removeCourse(id);
 	}

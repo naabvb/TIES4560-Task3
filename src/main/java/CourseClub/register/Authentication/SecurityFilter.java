@@ -74,8 +74,8 @@ public class SecurityFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		// Returning without calling an abort function first means that
-		// authorization
-		// was successful.
+		// authorization was successful.
+
 		UserService userService = UsersResource.getUserService();
 		nonce = calculateNonce();
 		userService.addNonce(nonce);
@@ -91,11 +91,10 @@ public class SecurityFilter implements ContainerRequestFilter {
 			return;
 		}
 
-		// TODO: Katso oikea dataflow Discordista.
-
 		List<String> authHeader = requestContext.getHeaders().get(AUTHORIZATION_HEADER_KEY);
 		if (authHeader != null && authHeader.size() > 0) {
 			if (authHeader.get(0).startsWith(AUTHORIZATION_HEADER_PREFIX_BASIC)) {
+
 				
 				user = basicAuth(authHeader, userService, requestContext);
 
@@ -103,6 +102,7 @@ public class SecurityFilter implements ContainerRequestFilter {
 
 				user = digestAuth(authHeader, userService, requestContext);
 				if (user == null) return;
+
 			}
 
 			if (user == null) {
@@ -175,6 +175,31 @@ public class SecurityFilter implements ContainerRequestFilter {
 		}
 		abortWithUnauthorized(requestContext);
 		return null;
+	}
+
+	private String md5hex(String s) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(s.getBytes());
+			byte[] digest = md.digest();
+			return DatatypeConverter.printHexBinary(digest).toLowerCase();
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
+	private HashMap<String, String> parseAuthHeader(String header) {
+		String headerContent = header.replaceFirst(AUTHORIZATION_HEADER_PREFIX_DIGEST, "");
+		HashMap<String, String> headerValues = new HashMap<String, String>();
+		String[] valueArray = headerContent.split(",");
+		for (String keyVal : valueArray) {
+			if (keyVal.contains("=")) {
+				String key = keyVal.substring(0, keyVal.indexOf("="));
+				String value = keyVal.substring(keyVal.indexOf("=") + 1);
+				headerValues.put(key.trim(), value.replaceAll("\"", "").trim());
+			}
+		}
+		return headerValues;
 	}
 
 	private String md5hex(String s) {

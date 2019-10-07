@@ -11,11 +11,13 @@ import CourseClub.register.Types.User;
 @Singleton
 public class UserService {
 
+	private List<String> nonces;
 	private List<User> users;
 	private static long nextId = 0L;
 
 	public UserService() {
 		this.users = new ArrayList<User>();
+		this.nonces = new ArrayList<String>();
 	}
 
 	public List<User> getUsers() {
@@ -55,7 +57,9 @@ public class UserService {
 	public User createUser(User user) {
 		if (user.hasRequiredAttributes()) {
 			user.setId(nextId);
-			user.addRole("admin");
+			if (users.size() == 0)
+				user.addRole("admin");
+			user.addRole("user");
 			nextId++;
 			users.add(user);
 			return user;
@@ -79,6 +83,18 @@ public class UserService {
 		}
 
 		return -1;
+	}
+
+	public List<String> getNonces() {
+		return nonces;
+	}
+
+	public void addNonce(String nonce) {
+		nonces.add(nonce);
+	}
+
+	public void deleteNonce(String nonce) {
+		nonces.remove(nonce);
 	}
 
 }

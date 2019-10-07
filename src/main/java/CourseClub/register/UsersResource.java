@@ -30,13 +30,13 @@ public class UsersResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@PermitAll
+	@RolesAllowed("admin")
 	public List<User> getUser() throws NoContentException {
 		List<User> users = usersService.getUsers();
 		if (!users.isEmpty()) {
 			return users;
 		} else {
-			throw new NoContentException("No users found."); // TODO FIX THIS (NoContentexception ei oo toteutettu)
+			throw new NoContentException("No users found.");
 		}
 	}
 
